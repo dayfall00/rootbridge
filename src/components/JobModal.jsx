@@ -63,6 +63,23 @@ const JobModal = ({ isOpen, onClose }) => {
           )}
 
           <div>
+            <label className="block text-sm font-bold text-text mb-1">Category</label>
+            <select 
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none"
+            >
+              <option value="" disabled>Select category</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Carpentry">Carpentry</option>
+              <option value="Landscaping">Landscaping</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
             <label className="block text-sm font-bold text-text mb-1">Job Title</label>
             <input 
               type="text" 
@@ -89,23 +106,6 @@ const JobModal = ({ isOpen, onClose }) => {
               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none min-h-[100px]"
               placeholder="Describe what needs to be done..."
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-text mb-1">Category</label>
-            <select 
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none"
-            >
-              <option value="" disabled>Select category</option>
-              <option value="Plumbing">Plumbing</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Carpentry">Carpentry</option>
-              <option value="Landscaping">Landscaping</option>
-              <option value="Other">Other</option>
-            </select>
           </div>
 
           <div>
