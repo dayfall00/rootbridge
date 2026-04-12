@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '../../context/UserContext';
 import { useAuth } from '../../context/AuthContext';
-import { Phone, BadgeCheck, Edit2, User, Mail, GraduationCap, X, Upload, Star, Briefcase } from 'lucide-react';
+import { Phone, BadgeCheck, Edit2, User, Mail, GraduationCap, MapPin, X, Upload, Star, Briefcase } from 'lucide-react';
 import { updateUserProfile } from '../../services/userService';
 import { storage, db } from '../../services/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -23,7 +23,8 @@ const UserProfile = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    qualification: ''
+    qualification: '',
+    city: ''
   });
 
   const [customerJobs, setCustomerJobs] = useState([]);
@@ -79,7 +80,8 @@ const UserProfile = () => {
       setFormData({
         name: userData.name || '',
         phone: userData.phone || '',
-        qualification: userData.qualification || ''
+        qualification: userData.qualification || '',
+        city: userData.city || ''
       });
     }
   }, [userData]);
@@ -133,7 +135,8 @@ const UserProfile = () => {
       await updateUserProfile(currentUser.uid, {
         name: formData.name,
         phone: formData.phone,
-        qualification: formData.qualification
+        qualification: formData.qualification,
+        city: formData.city
       });
       setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
       setIsEditModalOpen(false);
@@ -240,6 +243,16 @@ const UserProfile = () => {
                   <p className="text-xs text-gray-500">{userData?.qualification || 'Not Provided'}</p>
                 </div>
               </div>
+
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-sm text-text">Location</h4>
+                  <p className="text-xs text-gray-500">{userData?.city || 'Not Provided'}</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -274,7 +287,7 @@ const UserProfile = () => {
                              {job.status && <p className="text-[10px] text-blue-700 font-bold uppercase tracking-wider mt-1 px-2 py-0.5 bg-blue-100 rounded-md inline-block">{job.status}</p>}
                            </div>
                          </div>
-                         <p className="font-bold text-primary pl-4">${job.budget || 0}</p>
+                         <p className="font-bold text-primary pl-4">₹{job.budget || 0}</p>
                        </div>
                      ))}
                    </div>
@@ -384,10 +397,15 @@ const UserProfile = () => {
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Qualification <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">(Optional)</span></label>
                 <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} placeholder="e.g. Certified Arborist" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Location (City)</label>
+                <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. New York" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
+              </div>
               
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 pt-6 mt-8">
                 <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">Cancel</button>
-                <button type="submit" disabled={isSaving || (formData.name === (userData?.name || '') && formData.phone === (userData?.phone || '') && formData.qualification === (userData?.qualification || ''))} className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md">
+                <button type="submit" disabled={isSaving || (formData.name === (userData?.name || '') && formData.phone === (userData?.phone || '') && formData.qualification === (userData?.qualification || '') && formData.city === (userData?.city || ''))} className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md">
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>

@@ -100,7 +100,7 @@ const CustomerProfile = ({ currentUser }) => {
                   </div>
                 </div>
                 <div className="text-right shrink-0 pl-4">
-                  <p className="font-bold text-primary">${job.budget || 0}</p>
+                  <p className="font-bold text-primary">₹{job.budget || 0}</p>
                 </div>
               </div>
             ))}

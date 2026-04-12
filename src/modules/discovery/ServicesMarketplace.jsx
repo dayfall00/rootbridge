@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { subscribeToWorkers } from '../../services/workerService';
 import { useUser } from '../../context/UserContext';
 import { db } from '../../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { Star, Phone, Zap } from 'lucide-react';
 import CustomJobCTA from '../../components/CustomJobCTA';
 import JobModal from '../../components/JobModal';
@@ -13,43 +13,98 @@ const ServicesMarketplace = () => {
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [error, setError] = useState('');
-  // Map of uid to phone number
-  const [workerPhones, setWorkerPhones] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    // Subscribe to workers in user's city
-    // Use the city from userData, or fallback, or no filter if we want to show all initially
-    const unsubscribe = subscribeToWorkers(
-      categoryFilter || null, 
-      userData?.city || null,
-      async (workersList) => {
-        setWorkers(workersList);
+    console.log("User city:", userData?.city);
+    
+    const userCity = userData?.city;
+    if (!userCity) return; // inside useEffect, not before setLoading
+    
+    console.log("ServicesMarketplace Filters -> Category:", categoryFilter, "City:", userCity);
+
+    // Fetch ALL workers and filter entirely on frontend
+    const baseQuery = query(collection(db, "workers"));
+
+    const unsubscribe = onSnapshot(baseQuery, async (snapshot) => {
+      let rawWorkers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+      
+      console.log("Raw Firestore Workers:", rawWorkers);
+      
+      // Frontend filtering to normalize data representations
+      rawWorkers = rawWorkers.filter(worker => {
+        const workerCity = (worker.city || '').toLowerCase().trim();
+        const targetCity = (userData?.city || '').toLowerCase().trim();
+        const cityMatch = workerCity === targetCity;
         
-        // Fetch phone numbers for these workers from users collection
-        const phones = { ...workerPhones };
-        for (const w of workersList) {
-          if (!phones[w.uid]) {
-            try {
-              const uDoc = await getDoc(doc(db, "users", w.uid));
-              if (uDoc.exists()) {
-                phones[w.uid] = uDoc.data().phone || '+91XXXXXXXXXX';
-              } else {
-                phones[w.uid] = '+91XXXXXXXXXX';
-              }
-            } catch (e) {
-              phones[w.uid] = '+91XXXXXXXXXX';
+        const availableMatch = worker.isAvailable === true || worker.isAvailable === 'true';
+
+        const categoryMatch = !categoryFilter ||
+          (worker.category || '').toLowerCase().trim() ===
+          categoryFilter.toLowerCase().trim();
+
+        console.log("TARGET CITY:", targetCity);
+        console.log("WORKER RAW:", worker.uid, worker.city, worker.isAvailable, worker.category);
+        console.log("CITY MATCH:", cityMatch, "AVAILABLE:", availableMatch, "CATEGORY:", categoryMatch);
+        
+        return cityMatch && availableMatch && categoryMatch;
+      });
+
+      const mergedWorkers = await Promise.all(
+        rawWorkers.map(async (worker) => {
+          let userName = "RootBridge User";
+          let userPhone = "+91XXXXXXXXXX";
+          try {
+            const userDoc = await getDoc(doc(db, "users", worker.uid));
+            console.log("User doc for uid:", worker.uid, "exists:", userDoc.exists());
+            if (userDoc.exists()) {
+              userName = userDoc.data().name || userName;
+              userPhone = userDoc.data().phone || userPhone;
             }
+          } catch (err) {
+            console.error("Error fetching user details for worker:", worker.uid);
           }
-        }
-        setWorkerPhones(phones);
-        setLoading(false);
-      }
-    );
+
+          let parsedSkills = [];
+          if (Array.isArray(worker.skills)) {
+            parsedSkills = worker.skills;
+          } else if (typeof worker.skills === 'string') {
+            parsedSkills = worker.skills.split(',').map(s => s.trim()).filter(Boolean);
+          }
+
+          return {
+            uid: worker.uid,
+            name: userName,
+            category: worker.category,
+            skills: parsedSkills,
+            rating: worker.rating || 0,
+            city: worker.city,
+            isAvailable: worker.isAvailable,
+            phone: userPhone,
+            completedJobs: worker.completedJobs || 0
+          };
+        })
+      );
+
+      console.log("workersData", mergedWorkers);
+      setWorkers(mergedWorkers);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching workers snapshot:", error);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, [categoryFilter, userData?.city]);
+
+  if (!userData) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto flex gap-10 selection:bg-primary/20 selection:text-text">
@@ -96,7 +151,7 @@ const ServicesMarketplace = () => {
 
         {workers.length === 0 && !loading && (
           <div className="p-10 border border-gray-200 rounded-2xl text-center bg-white shadow-sm">
-            <p className="text-gray-500">No workers found in your city for this category. Adjust your filters.</p>
+            <p className="text-gray-500">No workers found in your city for this category</p>
           </div>
         )}
 
@@ -109,6 +164,11 @@ const ServicesMarketplace = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDkJOh5RZxhZTo1aP78WnhhU8v0LDeZXpE0MP2hdmaeMmZU2cmQjXKpDBt8okIpNezPb5aCDpyTPIFytIpmxPR41NHJvJKfFUa2dV_AmDdVT-7kQdDHoLjaYnHTAmg0W727uAEEhUVdWCq4k1CVHPQz58ZoDLdmYrzu_Yx-bsyMurUdk0YRoln7ZlIiBN4yR2bGLQZgbjslV5XgFCUsEza4zKYvIWLI3BtciI8vL1jQnSEAlSxSfXFrYe4KENeAqQ012Q5tJwf_0s"
                 />
+                {worker.isAvailable && (
+                  <div className="absolute top-4 left-4 bg-green-500/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Available Now</span>
+                  </div>
+                )}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                   <Star fill="currentColor" size={14} className="text-amber-500" />
                   <span className="text-xs font-bold text-text tracking-tight">{worker.rating || 'New'}</span>
@@ -117,8 +177,18 @@ const ServicesMarketplace = () => {
               <div className="p-8">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-2xl font-bold font-headline text-text mb-1">RootBridge Worker</h3>
-                    <p className="text-primary font-semibold text-sm">Expert {worker.category || 'Professional'}</p>
+                    <h3 className="text-2xl font-bold font-headline text-text mb-1">{worker.name}</h3>
+                    <p className="text-primary font-semibold text-sm capitalize">Expert {worker.category || 'Professional'}</p>
+                    
+                    {worker.skills && worker.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {worker.skills.map((skill, idx) => (
+                          <span key={idx} className="bg-gray-100 text-gray-600 text-[10px] uppercase font-bold px-2 py-1 rounded-md border border-gray-200 shadow-sm">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Completed Jobs</p>
@@ -130,7 +200,7 @@ const ServicesMarketplace = () => {
                 </p>
                 <div className="flex gap-4">
                   <a 
-                    href={`tel:${workerPhones[worker.uid] || '+91XXXXXXXXXX'}`}
+                    href={`tel:${worker.phone || '+91XXXXXXXXXX'}`}
                     className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                   >
                     <Phone size={18} />
