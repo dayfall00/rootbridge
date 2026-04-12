@@ -31,10 +31,19 @@ const RootRedirect = () => {
     return <Navigate to="/worker" replace />;
   }
 
+<<<<<<< HEAD
   if (userData.primaryRole === 'artisan') {
     return <Navigate to="/artisan" replace />;
   }
 
+=======
+  // Shopkeeper portal redirect
+  if (userData.primaryRole === "shopkeeper") {
+    return <Navigate to="/shopkeeper" replace />;
+  }
+
+  // ELSE: -> navigate("/home")
+>>>>>>> 28bba3e (add shopkeeper module and update services)
   return <Navigate to="/home" replace />;
 };
 
