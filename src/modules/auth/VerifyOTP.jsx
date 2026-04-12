@@ -65,7 +65,7 @@ const VerifyOTP = () => {
       } else if (!userDoc.name) {
         navigate('/onboarding/profile');
       } else {
-        navigate('/home');
+        navigate('/');
       }
     } catch (err) {
       console.error(err);

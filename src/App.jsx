@@ -17,19 +17,19 @@ import ServicesMarketplace from './modules/discovery/ServicesMarketplace';
 import ArtisanShop from './modules/marketplace/ArtisanShop';
 import UserProfile from './modules/profile/UserProfile';
 
+// Worker Modules
+import WorkerDashboard from './modules/worker/pages/WorkerDashboard';
+import AvailableJobs from './modules/worker/pages/AvailableJobs';
+import MyJobs from './modules/worker/pages/MyJobs';
+
 // Guard
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
-const RootRedirect = () => {
-  const { currentUser, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-surface">Loading application...</div>;
-  }
-  
-  return currentUser ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />;
-};
+import RootRedirect from './components/RootRedirect';
+import WorkerGuard from './components/WorkerGuard';
+import CustomerGuard from './components/CustomerGuard';
+import WorkerLayout from './modules/worker/components/WorkerLayout';
 
 function App() {
   return (
@@ -61,11 +61,18 @@ function App() {
             />
 
             {/* Protected Main Discovery Routes */}
-            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route element={<ProtectedRoute><CustomerGuard><Layout /></CustomerGuard></ProtectedRoute>}>
               <Route path="/home" element={<Home />} />
               <Route path="/services" element={<ServicesMarketplace />} />
               <Route path="/shop" element={<ArtisanShop />} />
               <Route path="/profile" element={<UserProfile />} />
+            </Route>
+
+            {/* Worker Module Routes */}
+            <Route path="/worker" element={<ProtectedRoute><WorkerGuard><WorkerLayout /></WorkerGuard></ProtectedRoute>}>
+              <Route index element={<WorkerDashboard />} />
+              <Route path="jobs" element={<AvailableJobs />} />
+              <Route path="my-jobs" element={<MyJobs />} />
             </Route>
 
             {/* Catch-all */}

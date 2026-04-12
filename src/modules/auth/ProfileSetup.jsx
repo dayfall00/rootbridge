@@ -26,7 +26,7 @@ const ProfileSetup = () => {
 
     try {
       await updateUserProfile(currentUser.uid, { name, city });
-      navigate('/home');
+      navigate('/');
     } catch (err) {
       console.error(err);
       setError('Failed to update profile. Please try again.');
