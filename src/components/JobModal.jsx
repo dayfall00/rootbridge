@@ -70,7 +70,13 @@ const JobModal = ({ isOpen, onClose }) => {
               value={formData.title}
               onChange={handleChange}
               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none"
-              placeholder="e.g., Fix leaking pipe"
+              placeholder={
+                formData.category === 'Electrical' ? 'e.g. Fix wiring issue' :
+                formData.category === 'Plumbing' ? 'e.g. Fix leaking pipe' :
+                formData.category === 'Carpentry' ? 'e.g. Repair wooden door' :
+                formData.category === 'Landscaping' ? 'e.g. Garden maintenance' :
+                'e.g. Describe the job'
+              }
             />
           </div>
 
@@ -103,7 +109,7 @@ const JobModal = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Budget ($)</label>
+            <label className="block text-sm font-bold text-text mb-1">Budget (₹)</label>
             <input 
               type="number" 
               name="budget"

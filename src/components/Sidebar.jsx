@@ -22,7 +22,7 @@ const Sidebar = () => {
             <p className="text-xs text-gray-500 font-medium whitespace-nowrap">The Architectural Greenhouse</p>
           </div>
         )}
-        <button 
+        <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors shrink-0"
         >

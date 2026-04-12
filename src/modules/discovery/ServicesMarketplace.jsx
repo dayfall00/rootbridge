@@ -24,7 +24,7 @@ const ServicesMarketplace = () => {
 
     const workersRef = collection(db, "workers");
     let primaryConstraints = [where("isAvailable", "==", true)];
-    
+
     if (categoryFilter) {
       primaryConstraints.push(where("category", "==", categoryFilter));
     }
@@ -52,7 +52,7 @@ const ServicesMarketplace = () => {
             fallbackConstraints.push(where("category", "==", categoryFilter));
           }
           const qFallback = query(workersRef, ...fallbackConstraints);
-          
+
           if (!unsubscribeFallback) {
             unsubscribeFallback = onSnapshot(qFallback, async (fallbackSnap) => {
               const fallbackList = [];
@@ -61,7 +61,7 @@ const ServicesMarketplace = () => {
             });
           }
         } else {
-           await populateWorkersData([]);
+          await populateWorkersData([]);
         }
       }
     }, (err) => {
@@ -104,10 +104,10 @@ const ServicesMarketplace = () => {
                 <div className="space-y-2">
                   {['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Cleaner', 'Landscaping'].map((cat) => (
                     <label key={cat} className="flex items-center gap-3 group cursor-pointer" onClick={() => setCategoryFilter(categoryFilter === cat ? '' : cat)}>
-                      <input 
-                        checked={categoryFilter === cat} 
-                        readOnly 
-                        className="rounded-md border-gray-300 text-primary focus:ring-primary h-5 w-5 cursor-pointer" 
+                      <input
+                        checked={categoryFilter === cat}
+                        readOnly
+                        className="rounded-md border-gray-300 text-primary focus:ring-primary h-5 w-5 cursor-pointer"
                         type="checkbox"
                       />
                       <span className="text-sm text-text group-hover:text-primary transition-colors">{cat}</span>
@@ -132,7 +132,7 @@ const ServicesMarketplace = () => {
         </div>
 
         {loading && <div className="p-10 border border-gray-200 rounded-2xl text-center bg-white shadow-sm animate-pulse">
-            <p className="text-gray-500">Loading workers...</p>
+          <p className="text-gray-500">Loading workers...</p>
         </div>}
 
         {workers.length === 0 && !loading && (
@@ -145,9 +145,9 @@ const ServicesMarketplace = () => {
           {workers.map((worker) => (
             <div key={worker.uid} className="group bg-white rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1 shadow-sm hover:shadow-xl border border-gray-100">
               <div className="relative h-64 overflow-hidden bg-gray-200">
-                <img 
-                  alt="Professional Profile" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                <img
+                  alt="Professional Profile"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDkJOh5RZxhZTo1aP78WnhhU8v0LDeZXpE0MP2hdmaeMmZU2cmQjXKpDBt8okIpNezPb5aCDpyTPIFytIpmxPR41NHJvJKfFUa2dV_AmDdVT-7kQdDHoLjaYnHTAmg0W727uAEEhUVdWCq4k1CVHPQz58ZoDLdmYrzu_Yx-bsyMurUdk0YRoln7ZlIiBN4yR2bGLQZgbjslV5XgFCUsEza4zKYvIWLI3BtciI8vL1jQnSEAlSxSfXFrYe4KENeAqQ012Q5tJwf_0s"
                 />
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
@@ -167,10 +167,10 @@ const ServicesMarketplace = () => {
                   </div>
                 </div>
                 <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-                  Available for hire in {worker.city}. Connect directly without any middlemen. 
+                  Available for hire in {worker.city}. Connect directly without any middlemen.
                 </p>
                 <div className="flex gap-4">
-                  <a 
+                  <a
                     href={`tel:${workerPhones[worker.uid] || '+91XXXXXXXXXX'}`}
                     className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                   >
@@ -188,9 +188,9 @@ const ServicesMarketplace = () => {
         </div>
       </section>
 
-      <JobModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <JobModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
