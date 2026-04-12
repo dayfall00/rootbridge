@@ -32,7 +32,7 @@ export const UserProvider = ({ children }) => {
         } else {
           // CREATE IF MISSING: Create user in Firestore
           try {
-            const newUserData = await createUserIfNotExists(currentUser.uid, currentUser.phoneNumber || currentUser.email || 'Unknown');
+            const newUserData = await createUserIfNotExists(currentUser.uid, currentUser.phoneNumber || null);
             setUserData(newUserData);
           } catch (error) {
             console.error("Error creating missing user in Firestore:", error);
