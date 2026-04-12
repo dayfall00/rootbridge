@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, ClipboardList, Briefcase } from 'lucide-react';
+import { Menu, Home, ClipboardList, Briefcase, User } from 'lucide-react';
 
 const WorkerSidebar = () => {
+  const [collapsed, setCollapsed] = useState(false);
+
   const getNavClass = ({ isActive }) => {
-    const baseClass = "flex items-center gap-3 px-4 py-3 font-medium transition-all duration-200 rounded-lg translate-x-1";
+    const baseClass = `flex items-center py-3 font-medium transition-all duration-200 rounded-lg ${collapsed ? 'justify-center px-0' : 'px-4 gap-3 translate-x-1'}`;
     if (isActive) {
       return `${baseClass} text-primary font-bold bg-gray-50`;
     }
@@ -12,23 +14,37 @@ const WorkerSidebar = () => {
   };
 
   return (
-    <aside className="w-64 border-r border-gray-200 bg-white flex flex-col py-8 px-6 gap-y-4 shrink-0">
-      <div className="mb-8">
-        <h1 className="text-2xl font-black text-primary font-headline">RootBridge</h1>
-        <p className="text-xs text-gray-500 font-medium">Worker Dashboard</p>
+    <aside className={`border-r border-gray-200 bg-white flex flex-col py-8 gap-y-4 shrink-0 transition-all duration-300 ${collapsed ? "w-20 px-2" : "w-64 px-6"}`}>
+      <div className={`flex items-start mb-8 ${collapsed ? 'justify-center' : 'justify-between'}`}>
+        {!collapsed && (
+          <div className="overflow-hidden">
+            <h1 className="text-2xl font-black text-primary font-headline">RootBridge</h1>
+            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Worker Dashboard</p>
+          </div>
+        )}
+        <button 
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-2 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors shrink-0"
+        >
+          <Menu size={20} />
+        </button>
       </div>
       <nav className="flex flex-col gap-y-2">
         <NavLink to="/worker" end className={getNavClass}>
-          <Home size={20} />
-          <span className="font-headline text-sm ml-1">Dashboard</span>
+          <Home size={20} className="shrink-0" />
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Dashboard</span>}
         </NavLink>
         <NavLink to="/worker/jobs" className={getNavClass}>
-          <ClipboardList size={20} />
-          <span className="font-headline text-sm ml-1">Available Jobs</span>
+          <ClipboardList size={20} className="shrink-0" />
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Available Jobs</span>}
         </NavLink>
         <NavLink to="/worker/my-jobs" className={getNavClass}>
-          <Briefcase size={20} />
-          <span className="font-headline text-sm ml-1">My Jobs</span>
+          <Briefcase size={20} className="shrink-0" />
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">My Jobs</span>}
+        </NavLink>
+        <NavLink to="/worker/profile" className={getNavClass}>
+          <User size={20} className="shrink-0" />
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
         </NavLink>
       </nav>
     </aside>

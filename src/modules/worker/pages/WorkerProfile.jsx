@@ -1,0 +1,361 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { useUser } from '../../../context/UserContext';
+import { db } from '../../../services/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { User, Phone, MapPin, Briefcase, Wrench, CheckCircle, Edit2, X } from 'lucide-react';
+import { updateUserProfile } from '../../../services/userService';
+
+const ALLOWED_CATEGORIES = [
+  "Plumber",
+  "Electrician",
+  "Carpenter",
+  "Painter",
+  "Cleaner"
+];
+
+const WorkerProfile = () => {
+  const { currentUser } = useAuth();
+  const { userData } = useUser();
+  
+  const [workerData, setWorkerData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  
+  // Form State
+  const [category, setCategory] = useState('');
+  const [skillsString, setSkillsString] = useState('');
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [city, setCity] = useState('');
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    if (!isEditModalOpen) {
+      if (userData?.city) setCity(userData.city);
+      if (userData?.name) setName(userData.name);
+    }
+  }, [userData?.city, userData?.name, isEditModalOpen]);
+
+  // 1 & 2: Fetch data and conditionally create default worker doc
+  useEffect(() => {
+    if (!currentUser?.uid) return;
+    
+    const workerRef = doc(db, "workers", currentUser.uid);
+    
+    const initWorkerDoc = async () => {
+      try {
+        const snap = await getDoc(workerRef);
+        if (!snap.exists()) {
+          // Prevent duplicate creation: only create if does not exist
+          const defaultData = {
+            uid: currentUser.uid,
+            category: "",
+            skills: [],
+            isAvailable: true,
+            rating: 0,
+            completedJobs: 0
+          };
+          await setDoc(workerRef, defaultData, { merge: true });
+        }
+      } catch (err) {
+        console.error("Error initializing worker doc:", err);
+      }
+    };
+
+    initWorkerDoc().then(() => {
+      const unsubscribe = onSnapshot(workerRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setWorkerData(data);
+          
+          if (!isEditModalOpen) {
+            setCategory(data.category || "");
+            setSkillsString(data.skills ? data.skills.join(", ") : "");
+            setIsAvailable(data.isAvailable ?? true);
+          }
+        }
+        setLoading(false);
+      }, (error) => {
+        console.error("Error fetching worker profile:", error);
+        setToast({ show: true, message: 'Failed to load worker profile.', type: 'error' });
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    });
+  }, [currentUser, isEditModalOpen]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!category) {
+      setToast({ show: true, message: 'Category is required.', type: 'error' });
+      setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const parsedSkills = Array.from(
+        new Set(
+          skillsString
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+        )
+      );
+
+      const workerRef = doc(db, "workers", currentUser.uid);
+      const promises = [
+        setDoc(workerRef, { category, skills: parsedSkills, isAvailable }, { merge: true })
+      ];
+
+      const userUpdates = {};
+      if (city !== userData?.city) userUpdates.city = city;
+      if (name !== userData?.name) userUpdates.name = name;
+      
+      if (Object.keys(userUpdates).length > 0) {
+        promises.push(updateUserProfile(currentUser.uid, userUpdates));
+      }
+
+      await Promise.all(promises);
+      
+      setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
+      setIsEditModalOpen(false);
+      
+    } catch (err) {
+      console.error(err);
+      setToast({ show: true, message: 'Failed to update profile.', type: 'error' });
+    } finally {
+      setSaving(false);
+      setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[1400px] mx-auto pb-12">
+      {/* Profile Header Block */}
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex items-center gap-6">
+          <div className="relative">
+            <img 
+              alt="Worker avatar" 
+              className="w-24 h-24 rounded-2xl object-cover shadow-sm bg-gray-200" 
+              src={userData?.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuAiA4cAqcaPKCQS9RnfMBUu-Q_ZUp0Snxm1HcSfHj1tmVwVpWhHAMtODoGn18CAsnLnc7PMowiLl8a4Ga_zQRi5PeCo395GKevrnb-K0pmssFpTvFGUvL8UKcbDUnwLobRhHeamC1CXbuWir0P7hklU9mwtbPeGL_ncmRntJdC9UBtUJgYzuV145qx6ZGX28qylhCHwN17hcmN6zr8usmqRuxlC8J6k9CMGcAWDerc5d5njh_OilCUh3MfWZhGZLDFj7pN96f3wPZ4"} 
+            />
+            <div className="absolute -bottom-2 -right-2 bg-secondary px-2 py-1 flex items-center justify-center rounded-lg border-2 border-white shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white leading-none">Worker</span>
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-4">
+              <h2 className="font-headline text-4xl font-extrabold text-text tracking-tight">{userData?.name || 'Worker'}</h2>
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                title="Edit Profile"
+              >
+                <Edit2 size={20} />
+              </button>
+            </div>
+            <p className="font-body text-gray-500 flex items-center gap-2 mt-1">
+              <Phone size={14} /> {userData?.phone || 'Not Provided'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Dashboard Grid / Visuals */}
+      <div className="grid grid-cols-12 gap-8 items-start">
+        <div className="col-span-12 lg:col-span-8 space-y-8">
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+            <h3 className="font-headline text-xl font-bold mb-6 text-text">Worker Details</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <Briefcase size={24} />
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-sm text-text">Category</h4>
+                  <p className="text-xs text-gray-500">{workerData?.category || 'Not Provided'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <Wrench size={24} />
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-sm text-text">Skills</h4>
+                  <p className="text-xs text-gray-500">{workerData?.skills?.length > 0 ? workerData.skills.join(', ') : 'Not Provided'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-sm text-text">City</h4>
+                  <p className="text-xs text-gray-500">{userData?.city || 'Not Provided'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <CheckCircle size={24} className={workerData?.isAvailable ? "text-green-500" : "text-gray-400"} />
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-sm text-text">Availability</h4>
+                  <p className="text-xs text-gray-500">{workerData?.isAvailable ? 'Available for work' : 'Currently unavailable'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-12 lg:col-span-4 space-y-8">
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+            <h3 className="font-headline text-lg font-bold mb-6 text-text">Worker Stats</h3>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-16 rounded-full border-4 border-primary/20 flex items-center justify-center">
+                <span className="font-headline font-black text-primary text-xl">{workerData?.rating || '0.0'}</span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-text">Overall Rating</p>
+                <p className="text-xs text-gray-500">Based on client reviews</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-500 w-24">Completed Jobs</span>
+                <div className="flex-1 ml-4 flex justify-end">
+                   <div className="font-bold text-sm bg-gray-100 px-3 py-1 rounded-full text-text">{workerData?.completedJobs || 0}</div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-500 w-24">Active Jobs</span>
+                <div className="flex-1 ml-4 flex justify-end">
+                  <div className="font-bold text-sm bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed bottom-8 right-8 px-6 py-3 rounded-lg font-bold text-sm text-white shadow-lg transition-all z-50 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="font-headline text-2xl font-bold text-text">Edit Worker Profile</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-all">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSave} className="space-y-6">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Full Name <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="e.g. John Doe" 
+                  className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Category <span className="text-red-500">*</span></label>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                  required
+                >
+                  <option value="" disabled>Select a category</option>
+                  {ALLOWED_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Skills <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">(Comma-separated)</span></label>
+                <input 
+                  type="text" 
+                  value={skillsString} 
+                  onChange={(e) => setSkillsString(e.target.value)} 
+                  placeholder="e.g. wiring, circuit repair" 
+                  className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">City</label>
+                <input 
+                  type="text" 
+                  value={city} 
+                  onChange={(e) => setCity(e.target.value)} 
+                  placeholder="e.g. New York, London" 
+                  className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="flex items-center justify-between cursor-pointer group bg-gray-50 p-4 border border-gray-200 rounded-xl">
+                  <div>
+                    <p className="font-bold text-text group-hover:text-primary transition-colors text-sm">Available for Work</p>
+                    <p className="text-xs text-gray-500 mt-1 font-medium">Turn this off if you are not taking new jobs.</p>
+                  </div>
+                  <div className="relative">
+                    <input 
+                      type="checkbox" 
+                      className="peer sr-only" 
+                      checked={isAvailable}
+                      onChange={(e) => setIsAvailable(e.target.checked)}
+                      disabled={saving}
+                    />
+                    <div className="block bg-gray-200 w-12 h-7 rounded-full peer-checked:bg-primary transition-colors"></div>
+                    <div className={`dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform ${isAvailable ? 'translate-x-5' : ''}`}></div>
+                  </div>
+                </label>
+              </div>
+              
+              <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 pt-6 mt-8">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">Cancel</button>
+                <button type="submit" disabled={saving || !category} className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md">
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default WorkerProfile;

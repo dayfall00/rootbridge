@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { subscribeToWorkers } from '../../services/workerService';
 import { useUser } from '../../context/UserContext';
 import { db } from '../../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { Star, Phone, Zap } from 'lucide-react';
 import CustomJobCTA from '../../components/CustomJobCTA';
 import JobModal from '../../components/JobModal';
@@ -19,36 +19,77 @@ const ServicesMarketplace = () => {
 
   useEffect(() => {
     setLoading(true);
-    // Subscribe to workers in user's city
-    // Use the city from userData, or fallback, or no filter if we want to show all initially
-    const unsubscribe = subscribeToWorkers(
-      categoryFilter || null, 
-      userData?.city || null,
-      async (workersList) => {
-        setWorkers(workersList);
-        
-        // Fetch phone numbers for these workers from users collection
-        const phones = { ...workerPhones };
-        for (const w of workersList) {
-          if (!phones[w.uid]) {
-            try {
-              const uDoc = await getDoc(doc(db, "users", w.uid));
-              if (uDoc.exists()) {
-                phones[w.uid] = uDoc.data().phone || '+91XXXXXXXXXX';
-              } else {
-                phones[w.uid] = '+91XXXXXXXXXX';
-              }
-            } catch (e) {
-              phones[w.uid] = '+91XXXXXXXXXX';
-            }
+    let unsubscribePrimary = null;
+    let unsubscribeFallback = null;
+
+    const workersRef = collection(db, "workers");
+    let primaryConstraints = [where("isAvailable", "==", true)];
+    
+    if (categoryFilter) {
+      primaryConstraints.push(where("category", "==", categoryFilter));
+    }
+    if (userData?.city) {
+      primaryConstraints.push(where("city", "==", userData.city));
+    }
+
+    const qPrimary = query(workersRef, ...primaryConstraints);
+
+    unsubscribePrimary = onSnapshot(qPrimary, async (snapshot) => {
+      const workersList = [];
+      snapshot.forEach(doc => workersList.push(doc.data()));
+
+      if (workersList.length > 0) {
+        if (unsubscribeFallback) {
+          unsubscribeFallback();
+          unsubscribeFallback = null;
+        }
+        await populateWorkersData(workersList);
+      } else {
+        // Fallback Logic: Check without city filter
+        if (userData?.city) {
+          let fallbackConstraints = [where("isAvailable", "==", true)];
+          if (categoryFilter) {
+            fallbackConstraints.push(where("category", "==", categoryFilter));
+          }
+          const qFallback = query(workersRef, ...fallbackConstraints);
+          
+          if (!unsubscribeFallback) {
+            unsubscribeFallback = onSnapshot(qFallback, async (fallbackSnap) => {
+              const fallbackList = [];
+              fallbackSnap.forEach(doc => fallbackList.push(doc.data()));
+              await populateWorkersData(fallbackList);
+            });
+          }
+        } else {
+           await populateWorkersData([]);
+        }
+      }
+    }, (err) => {
+      console.error(err);
+      setLoading(false);
+    });
+
+    const populateWorkersData = async (workersList) => {
+      setWorkers(workersList);
+      const phones = { ...workerPhones };
+      for (const w of workersList) {
+        if (!phones[w.uid]) {
+          try {
+            const uDoc = await getDoc(doc(db, "users", w.uid));
+            phones[w.uid] = uDoc.exists() ? (uDoc.data().phone || '+91XXXXXXXXXX') : '+91XXXXXXXXXX';
+          } catch (e) {
+            phones[w.uid] = '+91XXXXXXXXXX';
           }
         }
-        setWorkerPhones(phones);
-        setLoading(false);
       }
-    );
+      setWorkerPhones(phones);
+      setLoading(false);
+    }
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribePrimary) unsubscribePrimary();
+      if (unsubscribeFallback) unsubscribeFallback();
+    };
   }, [categoryFilter, userData?.city]);
 
   return (
@@ -61,7 +102,7 @@ const ServicesMarketplace = () => {
               <div className="space-y-4">
                 <label className="text-xs font-bold font-label text-gray-500 uppercase tracking-wider">Category</label>
                 <div className="space-y-2">
-                  {['Electrician', 'Plumber', 'Carpenter', 'Landscaping'].map((cat) => (
+                  {['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Cleaner', 'Landscaping'].map((cat) => (
                     <label key={cat} className="flex items-center gap-3 group cursor-pointer" onClick={() => setCategoryFilter(categoryFilter === cat ? '' : cat)}>
                       <input 
                         checked={categoryFilter === cat} 
@@ -86,7 +127,7 @@ const ServicesMarketplace = () => {
             <h2 className="text-4xl font-extrabold font-headline tracking-tight text-text mb-2">
               Expert {categoryFilter || 'Workers'}
             </h2>
-            <p className="text-gray-500 text-lg">{workers.length} verified professionals available in {userData?.city || 'your area'}</p>
+            <p className="text-gray-500 text-lg">{workers.length} verified professionals in {userData?.city || 'your area'}</p>
           </div>
         </div>
 
@@ -96,7 +137,7 @@ const ServicesMarketplace = () => {
 
         {workers.length === 0 && !loading && (
           <div className="p-10 border border-gray-200 rounded-2xl text-center bg-white shadow-sm">
-            <p className="text-gray-500">No workers found in your city for this category. Adjust your filters.</p>
+            <p className="text-gray-500">No workers found in your city for this category.</p>
           </div>
         )}
 

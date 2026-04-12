@@ -46,7 +46,7 @@ const ROLES = {
 };
 
 const RoleSelection = () => {
-  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -54,17 +54,13 @@ const RoleSelection = () => {
   const { userData } = useUser();
   const navigate = useNavigate();
 
-  const toggleRole = (roleId) => {
-    if (selectedRoles.includes(roleId)) {
-      setSelectedRoles(prev => prev.filter(r => r !== roleId));
-    } else {
-      setSelectedRoles(prev => [...prev, roleId]);
-    }
+  const handleSelectRole = (roleId) => {
+    setSelectedRole(roleId);
   };
 
   const handleContinue = async () => {
-    if (selectedRoles.length === 0) {
-      setError('Please select at least one role to continue.');
+    if (!selectedRole) {
+      setError('Please select a role to continue.');
       return;
     }
 
@@ -72,11 +68,11 @@ const RoleSelection = () => {
     setError('');
 
     try {
-      const primaryRole = selectedRoles[0]; // Set first selected as primary
-      await updateUserRoles(currentUser.uid, selectedRoles, primaryRole);
+      const primaryRole = selectedRole;
+      await updateUserRoles(currentUser.uid, [selectedRole], primaryRole);
 
       // Explicit Check: If worker, create worker document
-      if (selectedRoles.includes('worker')) {
+      if (selectedRole === 'worker') {
         await createOrUpdateWorker(currentUser.uid, {
           category: null, 
           city: userData?.city || null
@@ -115,18 +111,18 @@ const RoleSelection = () => {
                 <h1 className="text-3xl md:text-4xl font-extrabold text-text font-headline leading-tight">
                   What do you want to do on RootBridge?
                 </h1>
-                <p className="text-gray-500 text-sm mt-3 font-body">Select all that apply to your journey</p>
+                <p className="text-gray-500 text-sm mt-3 font-body">Select one to continue applied to your journey</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Object.values(ROLES).map((role) => {
-                  const isSelected = selectedRoles.includes(role.id);
+                  const isSelected = selectedRole === role.id;
                   const Icon = role.Icon;
                   const StatusIcon = isSelected ? CheckCircle2 : PlusCircle;
                   return (
                     <div 
                       key={role.id}
-                      onClick={() => !loading && toggleRole(role.id)}
+                      onClick={() => !loading && handleSelectRole(role.id)}
                       className={`group relative cursor-pointer flex flex-col p-5 bg-white rounded-xl transition-all border-2 ${isSelected ? role.activeBorder : 'border-gray-100 hover:border-gray-200'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div className={`w-12 h-12 rounded-lg ${role.bgClass} flex items-center justify-center mb-4 ${role.colorClass} group-hover:scale-110 transition-transform`}>
@@ -149,8 +145,8 @@ const RoleSelection = () => {
               <div className="mt-12 flex flex-col gap-4">
                 <button 
                   onClick={handleContinue}
-                  className={`w-full py-4 bg-primary text-white font-headline font-bold rounded-xl transition-opacity ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-95'}`}
-                  disabled={loading}
+                  className={`w-full py-4 bg-primary text-white font-headline font-bold rounded-xl transition-opacity ${loading || !selectedRole ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-95'}`}
+                  disabled={loading || !selectedRole}
                 >
                   {loading ? 'Saving...' : 'Continue'}
                 </button>

@@ -21,6 +21,7 @@ import UserProfile from './modules/profile/UserProfile';
 import WorkerDashboard from './modules/worker/pages/WorkerDashboard';
 import AvailableJobs from './modules/worker/pages/AvailableJobs';
 import MyJobs from './modules/worker/pages/MyJobs';
+import WorkerProfile from './modules/worker/pages/WorkerProfile';
 
 // Guard
 import ProtectedRoute from './components/ProtectedRoute';
@@ -73,6 +74,7 @@ function App() {
               <Route index element={<WorkerDashboard />} />
               <Route path="jobs" element={<AvailableJobs />} />
               <Route path="my-jobs" element={<MyJobs />} />
+              <Route path="profile" element={<WorkerProfile />} />
             </Route>
 
             {/* Catch-all */}
