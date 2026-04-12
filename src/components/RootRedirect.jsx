@@ -27,16 +27,23 @@ const RootRedirect = () => {
   if (!userData) return null;
 
   // TASK 1: IF userData.primaryRole === "worker": -> navigate("/worker")
-  if (userData.primaryRole === "worker") {
+  if (userData.primaryRole === 'worker') {
     return <Navigate to="/worker" replace />;
   }
 
+<<<<<<< HEAD
   // Shopkeeper portal redirect
   if (userData.primaryRole === "shopkeeper") {
     return <Navigate to="/shopkeeper" replace />;
   }
 
   // ELSE: -> navigate("/home")
+=======
+  if (userData.primaryRole === 'artisan') {
+    return <Navigate to="/artisan" replace />;
+  }
+
+>>>>>>> 3a7d5b87acc17a7a4727a465e903bd201e8d5b9d
   return <Navigate to="/home" replace />;
 };
 
