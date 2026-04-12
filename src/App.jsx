@@ -23,20 +23,18 @@ import AvailableJobs from './modules/worker/pages/AvailableJobs';
 import MyJobs from './modules/worker/pages/MyJobs';
 import WorkerProfile from './modules/worker/pages/WorkerProfile';
 
-<<<<<<< HEAD
-// Artisan Modules
-import ArtisanLayout from './modules/artisan/components/ArtisanLayout';
-import ArtisanDashboard from './modules/artisan/pages/ArtisanDashboard';
-import AddProduct from './modules/artisan/pages/AddProduct';
-import MyProducts from './modules/artisan/pages/MyProducts';
-=======
 // Shopkeeper Modules
 import ShopkeeperLayout from './modules/shopkeeper/components/ShopkeeperLayout';
 import ShopkeeperDashboard from './modules/shopkeeper/pages/ShopkeeperDashboard';
 import PostHelperJob from './modules/shopkeeper/pages/PostHelperJob';
 import MyJobPosts from './modules/shopkeeper/pages/MyJobPosts';
 import ShopkeeperProfile from './modules/shopkeeper/pages/ShopkeeperProfile';
->>>>>>> 28bba3e (add shopkeeper module and update services)
+
+// Artisan Modules
+import ArtisanLayout from './modules/artisan/components/ArtisanLayout';
+import ArtisanDashboard from './modules/artisan/pages/ArtisanDashboard';
+import AddProduct from './modules/artisan/pages/AddProduct';
+import MyProducts from './modules/artisan/pages/MyProducts';
 
 // Guard
 import ProtectedRoute from './components/ProtectedRoute';
@@ -93,20 +91,19 @@ function App() {
               <Route path="profile" element={<WorkerProfile />} />
             </Route>
 
-<<<<<<< HEAD
-            {/* Artisan Module Routes */}
-            <Route path="/artisan" element={<ProtectedRoute><ArtisanLayout /></ProtectedRoute>}>
-              <Route index element={<ArtisanDashboard />} />
-              <Route path="add-product" element={<AddProduct />} />
-              <Route path="my-products" element={<MyProducts />} />
-=======
             {/* Shopkeeper Module Routes */}
             <Route path="/shopkeeper" element={<ProtectedRoute><ShopkeeperGuard><ShopkeeperLayout /></ShopkeeperGuard></ProtectedRoute>}>
               <Route index element={<ShopkeeperDashboard />} />
               <Route path="post-job" element={<PostHelperJob />} />
               <Route path="my-jobs" element={<MyJobPosts />} />
               <Route path="profile" element={<ShopkeeperProfile />} />
->>>>>>> 28bba3e (add shopkeeper module and update services)
+            </Route>
+
+            {/* Artisan Module Routes */}
+            <Route path="/artisan" element={<ProtectedRoute><ArtisanLayout /></ProtectedRoute>}>
+              <Route index element={<ArtisanDashboard />} />
+              <Route path="add-product" element={<AddProduct />} />
+              <Route path="my-products" element={<MyProducts />} />
             </Route>
 
             {/* Catch-all */}
