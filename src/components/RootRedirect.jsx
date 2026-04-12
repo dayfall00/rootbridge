@@ -27,11 +27,14 @@ const RootRedirect = () => {
   if (!userData) return null;
 
   // TASK 1: IF userData.primaryRole === "worker": -> navigate("/worker")
-  if (userData.primaryRole === "worker") {
+  if (userData.primaryRole === 'worker') {
     return <Navigate to="/worker" replace />;
   }
 
-  // ELSE: -> navigate("/home")
+  if (userData.primaryRole === 'artisan') {
+    return <Navigate to="/artisan" replace />;
+  }
+
   return <Navigate to="/home" replace />;
 };
 

@@ -23,6 +23,12 @@ import AvailableJobs from './modules/worker/pages/AvailableJobs';
 import MyJobs from './modules/worker/pages/MyJobs';
 import WorkerProfile from './modules/worker/pages/WorkerProfile';
 
+// Artisan Modules
+import ArtisanLayout from './modules/artisan/components/ArtisanLayout';
+import ArtisanDashboard from './modules/artisan/pages/ArtisanDashboard';
+import AddProduct from './modules/artisan/pages/AddProduct';
+import MyProducts from './modules/artisan/pages/MyProducts';
+
 // Guard
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -75,6 +81,13 @@ function App() {
               <Route path="jobs" element={<AvailableJobs />} />
               <Route path="my-jobs" element={<MyJobs />} />
               <Route path="profile" element={<WorkerProfile />} />
+            </Route>
+
+            {/* Artisan Module Routes */}
+            <Route path="/artisan" element={<ProtectedRoute><ArtisanLayout /></ProtectedRoute>}>
+              <Route index element={<ArtisanDashboard />} />
+              <Route path="add-product" element={<AddProduct />} />
+              <Route path="my-products" element={<MyProducts />} />
             </Route>
 
             {/* Catch-all */}
