@@ -41,10 +41,14 @@ const WorkerDashboard = () => {
       
       snapshot.forEach(jobDoc => {
         const job = jobDoc.data();
-        if (job.status === 'assigned' || job.status === 'in_progress') {
-          activeCount++;
-        } else if (job.status === 'completed') {
+        if (job.status === 'completed') {
           completedCount++;
+        } else if (
+          job.status === 'assigned' ||
+          job.status === 'in_progress' ||
+          job.completionRequested  // pending confirmation counts as "active"
+        ) {
+          activeCount++;
         }
       });
 

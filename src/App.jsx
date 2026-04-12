@@ -23,12 +23,20 @@ import AvailableJobs from './modules/worker/pages/AvailableJobs';
 import MyJobs from './modules/worker/pages/MyJobs';
 import WorkerProfile from './modules/worker/pages/WorkerProfile';
 
+// Shopkeeper Modules
+import ShopkeeperLayout from './modules/shopkeeper/components/ShopkeeperLayout';
+import ShopkeeperDashboard from './modules/shopkeeper/pages/ShopkeeperDashboard';
+import PostHelperJob from './modules/shopkeeper/pages/PostHelperJob';
+import MyJobPosts from './modules/shopkeeper/pages/MyJobPosts';
+import ShopkeeperProfile from './modules/shopkeeper/pages/ShopkeeperProfile';
+
 // Guard
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
 import RootRedirect from './components/RootRedirect';
 import WorkerGuard from './components/WorkerGuard';
+import ShopkeeperGuard from './components/ShopkeeperGuard';
 import CustomerGuard from './components/CustomerGuard';
 import WorkerLayout from './modules/worker/components/WorkerLayout';
 
@@ -75,6 +83,14 @@ function App() {
               <Route path="jobs" element={<AvailableJobs />} />
               <Route path="my-jobs" element={<MyJobs />} />
               <Route path="profile" element={<WorkerProfile />} />
+            </Route>
+
+            {/* Shopkeeper Module Routes */}
+            <Route path="/shopkeeper" element={<ProtectedRoute><ShopkeeperGuard><ShopkeeperLayout /></ShopkeeperGuard></ProtectedRoute>}>
+              <Route index element={<ShopkeeperDashboard />} />
+              <Route path="post-job" element={<PostHelperJob />} />
+              <Route path="my-jobs" element={<MyJobPosts />} />
+              <Route path="profile" element={<ShopkeeperProfile />} />
             </Route>
 
             {/* Catch-all */}

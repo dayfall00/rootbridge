@@ -1,54 +1,86 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { fetchMyJobs, completeJob } from '../../../services/workerService';
+import { fetchMyJobs, requestJobCompletion, forceCompleteJob } from '../../../services/workerService';
 import JobCard from '../components/JobCard';
 import { CheckCircle } from 'lucide-react';
 
+const AUTO_COMPLETE_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
+
 const MyJobs = () => {
   const { currentUser } = useAuth();
-  const [activeJobs, setActiveJobs] = useState([]);
+  const [activeJobs, setActiveJobs]       = useState([]);
   const [completedJobs, setCompletedJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState('');
+  const [completing, setCompleting]       = useState(null); // jobId currently being processed
 
+  // ── Real-time job subscription + frontend auto-complete check ──────────────
   useEffect(() => {
     let unsubscribe;
-    if (currentUser?.uid) {
-      unsubscribe = fetchMyJobs(currentUser.uid, (fetchedJobs) => {
-        const active = [];
-        const completed = [];
-        
-        fetchedJobs.forEach(job => {
-          if (job.status === 'completed') {
-            completed.push(job);
-          } else {
-            active.push(job);
+    if (!currentUser?.uid) return;
+
+    unsubscribe = fetchMyJobs(currentUser.uid, async (fetchedJobs) => {
+      const active    = [];
+      const completed = [];
+      const now       = Date.now();
+
+      for (const job of fetchedJobs) {
+        if (job.status === 'completed') {
+          completed.push(job);
+          continue;
+        }
+
+        // ── Frontend auto-completion fallback ──────────────────────────────
+        // If worker requested completion > 48 h ago and no response yet,
+        // auto-complete the job.
+        if (job.completionRequested && job.completedAt) {
+          const completedAtMs =
+            job.completedAt?.seconds
+              ? job.completedAt.seconds * 1000
+              : job.completedAt?.toMillis?.() ?? 0;
+
+          if (now - completedAtMs >= AUTO_COMPLETE_MS) {
+            try {
+              await forceCompleteJob(job.id);
+            } catch (e) {
+              console.error('Auto-complete failed:', e);
+            }
+            // Firestore subscription will push the updated doc back — skip here
+            continue;
           }
-        });
-        
-        setActiveJobs(active);
-        setCompletedJobs(completed);
-        setLoading(false);
-      });
-    }
-    
+        }
+
+        active.push(job);
+      }
+
+      setActiveJobs(active);
+      setCompletedJobs(completed);
+      setLoading(false);
+    });
+
     return () => {
       if (unsubscribe) unsubscribe();
     };
   }, [currentUser]);
 
-  const handleCompleteJob = async (jobId) => {
+  // ── Worker requests completion ─────────────────────────────────────────────
+  const handleRequestCompletion = async (jobId) => {
+    if (completing) return; // prevent double-click
     try {
       setError('');
-      await completeJob(jobId);
+      setCompleting(jobId);
+      await requestJobCompletion(jobId, currentUser.uid);
     } catch (err) {
-      console.error("Failed to complete job:", err);
-      setError('Failed to mark job as complete.');
+      console.error('Failed to request completion:', err);
+      setError(err.message || 'Failed to request job completion. Please try again.');
+    } finally {
+      setCompleting(null);
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto space-y-12">
+      {/* Page header */}
       <div className="flex items-center gap-4 mb-2">
         <div className="p-4 bg-secondary/10 rounded-2xl text-secondary">
           <CheckCircle size={32} />
@@ -67,10 +99,11 @@ const MyJobs = () => {
 
       {loading ? (
         <div className="text-center p-12 bg-white rounded-2xl shadow-sm border border-gray-100 animate-pulse">
-          <p className="text-gray-400 font-bold">Loading your jobs...</p>
+          <p className="text-gray-400 font-bold">Loading your jobs…</p>
         </div>
       ) : (
         <>
+          {/* ── Active Assignments ────────────────────────────────────────── */}
           <section>
             <h2 className="text-2xl font-bold text-text mb-6 flex items-center gap-3">
               Active Assignments
@@ -78,24 +111,28 @@ const MyJobs = () => {
                 {activeJobs.length}
               </span>
             </h2>
-            
+
             {activeJobs.length === 0 ? (
               <div className="p-8 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                <p className="text-gray-500 font-medium">No active jobs. Check the Available Jobs board to find new opportunities.</p>
+                <p className="text-gray-500 font-medium">
+                  No active jobs. Check the Available Jobs board to find new opportunities.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeJobs.map(job => (
-                  <JobCard 
-                    key={job.id} 
-                    job={job} 
-                    onComplete={handleCompleteJob} 
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onComplete={handleRequestCompletion}
+                    completing={completing === job.id}
                   />
                 ))}
               </div>
             )}
           </section>
 
+          {/* ── Completed Jobs ────────────────────────────────────────────── */}
           <section>
             <h2 className="text-2xl font-bold text-text mb-6 flex items-center gap-3">
               Completed Jobs
@@ -103,7 +140,7 @@ const MyJobs = () => {
                 {completedJobs.length}
               </span>
             </h2>
-            
+
             {completedJobs.length === 0 ? (
               <div className="p-8 bg-gray-50 rounded-2xl border border-gray-100 text-center">
                 <p className="text-gray-500 font-medium">You haven't completed any jobs yet.</p>
@@ -111,11 +148,7 @@ const MyJobs = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {completedJobs.map(job => (
-                  <JobCard 
-                    key={job.id} 
-                    job={job} 
-                    // No onComplete passed so button won't render
-                  />
+                  <JobCard key={job.id} job={job} />
                 ))}
               </div>
             )}

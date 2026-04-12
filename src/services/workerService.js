@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, runTransaction } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
 export const createOrUpdateWorker = async (uid, data) => {
@@ -93,7 +93,29 @@ export const acceptJob = async (jobId, uid) => {
   });
 };
 
-export const completeJob = async (jobId) => {
+/**
+ * Worker requests completion — does NOT immediately set status to "completed".
+ * Shopkeeper gets 48h to confirm or reject.
+ */
+export const requestJobCompletion = async (jobId, workerId) => {
+  const jobRef = doc(db, "jobs", jobId);
+  await runTransaction(db, async (transaction) => {
+    const jobSnap = await transaction.get(jobRef);
+    if (!jobSnap.exists()) throw new Error("Job not found.");
+    const data = jobSnap.data();
+    if (data.assignedTo !== workerId) throw new Error("Only the assigned worker can mark this job.");
+    if (data.status !== "assigned") throw new Error("Job is not in assigned state.");
+    if (data.completionRequested) throw new Error("Completion already requested.");
+    transaction.update(jobRef, {
+      completionRequested: true,
+      completedByWorker:   true,
+      completedAt:         serverTimestamp(),
+    });
+  });
+};
+
+/** Internal / fallback forceComplete – used by auto-completion logic. */
+export const forceCompleteJob = async (jobId) => {
   const jobRef = doc(db, "jobs", jobId);
   await updateDoc(jobRef, { status: "completed" });
 };

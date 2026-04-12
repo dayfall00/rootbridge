@@ -42,6 +42,15 @@ const ROLES = {
     colorClass: 'text-secondary',
     bgClass: 'bg-secondary/10',
     activeBorder: 'border-secondary'
+  },
+  shopkeeper: {
+    id: 'shopkeeper',
+    title: 'Shop Helper Hire',
+    desc: 'I run a shop and need helpers to manage daily operations.',
+    Icon: Store,
+    colorClass: 'text-amber-600',
+    bgClass: 'bg-amber-50',
+    activeBorder: 'border-amber-400'
   }
 };
 
@@ -77,6 +86,12 @@ const RoleSelection = () => {
           category: null, 
           city: userData?.city || null
         });
+      }
+
+      // Shopkeeper: navigate directly to shopkeeper portal
+      if (selectedRole === 'shopkeeper') {
+        navigate('/onboarding/profile');
+        return;
       }
 
       navigate('/onboarding/profile');
