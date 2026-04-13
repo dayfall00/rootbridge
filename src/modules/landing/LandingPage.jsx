@@ -7,6 +7,7 @@ import {
   ArrowRight, Zap, Shield, MapPin, Star, Users, Briefcase,
   Wrench, ShoppingBag, ChevronDown, Menu, X
 } from 'lucide-react';
+import CreditsSection from '../../components/CreditsSection';
 
 const LandingPage = () => {
   const { currentUser, loading } = useAuth();
@@ -366,79 +367,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ── FOOTER ──────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 py-10 px-6 text-center">
-        <p className="font-headline font-black text-xl text-primary mb-1">RootBridge</p>
-        <p className="text-gray-400 text-sm">Hyperlocal service marketplace · Built for Bharat</p>
-        <p className="text-gray-300 text-xs mt-4">© {new Date().getFullYear()} RootBridge. All rights reserved.</p>
-
-        {/* Contributors */}
-        <div className="mt-8 border-t border-gray-100 pt-6">
-          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-4">Contributors</p>
-
-          {/* GitHub */}
-          <div className="mb-3">
-            <p className="text-gray-400 text-xs font-semibold mb-1">GitHub</p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <a
-                href="https://github.com/anubhavmaurya22"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Anubhav Maurya
-              </a>
-              <a
-                href="https://github.com/dayfall00"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Aditya Bharadwaj
-              </a>
-            </div>
-          </div>
-
-          {/* LinkedIn */}
-          <div>
-            <p className="text-gray-400 text-xs font-semibold mb-1">LinkedIn</p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <a
-                href="https://www.linkedin.com/in/anubhav-maurya-973482379/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Anubhav Maurya
-              </a>
-              <a
-                href="https://www.linkedin.com/in/aditya-bhardwaj-87036a1a8/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Aditya Bhardwaj
-              </a>
-              <a
-                href="https://www.linkedin.com/in/utkarsh-kumar-bab18632b/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Utkarsh Kumar
-              </a>
-              <a
-                href="https://www.linkedin.com/in/yashi-srivastava-579061329/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-primary transition-colors"
-              >
-                Yashi Srivastava
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* ── FOOTER / CREDITS ────────────────────────────────────────────── */}
+      <CreditsSection />
     </div>
   );
 };
