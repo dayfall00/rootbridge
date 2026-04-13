@@ -3,6 +3,7 @@ import { useUser } from '../../../context/UserContext';
 import { createHelperJob } from '../../../services/jobService';
 import { useNavigate } from 'react-router-dom';
 import { Store, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const SHOP_CATEGORIES = [
@@ -13,6 +14,7 @@ const DURATION_OPTIONS = ['Full-time', 'Part-time'];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const PostHelperJob = () => {
+  const { t } = useTranslation();
   const { userData } = useUser();
   const navigate     = useNavigate();
 
@@ -54,15 +56,15 @@ const PostHelperJob = () => {
 
   const validate = () => {
     const e = {};
-    if (!form.category)                                     e.category      = 'Shop type is required.';
-    if (!form.title.trim())                                 e.title         = 'Job title is required.';
+    if (!form.category)                                     e.category      = t('shopkeeper.post_job.err_category');
+    if (!form.title.trim())                                 e.title         = t('shopkeeper.post_job.err_title');
     if (!form.budget || isNaN(Number(form.budget)) || Number(form.budget) <= 0)
-                                                            e.budget        = 'Enter a valid wage amount (₹).';
-    if (!form.workDuration)                                 e.workDuration  = 'Select work duration.';
-    if (!form.workingHours.trim())                          e.workingHours  = 'Specify working hours.';
-    if (!form.city.trim())                                  e.city          = 'City is required.';
+                                                            e.budget        = t('shopkeeper.post_job.err_budget');
+    if (!form.workDuration)                                 e.workDuration  = t('shopkeeper.post_job.err_duration');
+    if (!form.workingHours.trim())                          e.workingHours  = t('shopkeeper.post_job.err_hours');
+    if (!form.city.trim())                                  e.city          = t('shopkeeper.post_job.err_city');
     if (!form.contactNumber.trim() || !/^\+?[0-9]{10,13}$/.test(form.contactNumber.replace(/\s/g, '')))
-                                                            e.contactNumber = 'Enter a valid phone number.';
+                                                            e.contactNumber = t('shopkeeper.post_job.err_phone');
     return e;
   };
 
@@ -79,7 +81,7 @@ const PostHelperJob = () => {
       setTimeout(() => navigate('/business/my-jobs'), 1800);
     } catch (err) {
       console.error('[PostHelperJob]', err);
-      setErrors({ submit: err.message || 'Failed to post job. Please try again.' });
+      setErrors({ submit: err.message || t('shopkeeper.post_job.err_submit') });
     } finally {
       setLoading(false);
     }
@@ -109,8 +111,8 @@ const PostHelperJob = () => {
         <div className="p-5 bg-green-100 rounded-full text-green-600">
           <CheckCircle size={48} />
         </div>
-        <h2 className="text-2xl font-bold text-text">Job Posted Successfully!</h2>
-        <p className="text-gray-500">Redirecting to your job listings…</p>
+        <h2 className="text-2xl font-bold text-text">{t('shopkeeper.post_job.success_title')}</h2>
+        <p className="text-gray-500">{t('shopkeeper.post_job.success_desc')}</p>
       </div>
     );
   }
@@ -125,8 +127,8 @@ const PostHelperJob = () => {
           <Store size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold text-text">Post Helper Requirement</h1>
-          <p className="text-gray-500 text-sm">Fill in the details to find a shop helper near you.</p>
+          <h1 className="text-2xl font-extrabold text-text">{t('shopkeeper.post_job.title')}</h1>
+          <p className="text-gray-500 text-sm">{t('shopkeeper.post_job.subtitle')}</p>
         </div>
       </div>
 
@@ -142,11 +144,11 @@ const PostHelperJob = () => {
         {/* 1. Shop Type */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Shop Type <span className="text-red-500">*</span>
+            {t('shopkeeper.post_job.shop_type')} <span className="text-red-500">*</span>
           </label>
           <select name="category" value={form.category} onChange={handleChange} className={inputCls('category')}>
-            <option value="" disabled>Select shop type</option>
-            {SHOP_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            <option value="" disabled>{t('shopkeeper.post_job.select_shop_type')}</option>
+            {SHOP_CATEGORIES.map(c => <option key={c} value={c}>{t(`categories.${c.toLowerCase()}`, { defaultValue: c })}</option>)}
           </select>
           <FieldError field="category" />
         </div>
@@ -154,12 +156,12 @@ const PostHelperJob = () => {
         {/* 2. Job Title */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Job Title <span className="text-red-500">*</span>
+            {t('shopkeeper.post_job.job_title')} <span className="text-red-500">*</span>
           </label>
           <input
             type="text" name="title" value={form.title} onChange={handleChange}
             className={inputCls('title')}
-            placeholder={placeholder[form.category] || 'e.g. Need a shop helper'}
+            placeholder={form.category ? t(`shopkeeper.post_job.ph_${form.category}`, { defaultValue: t('shopkeeper.post_job.job_title_ph') }) : t('shopkeeper.post_job.job_title_ph')}
           />
           <FieldError field="title" />
         </div>
@@ -167,19 +169,19 @@ const PostHelperJob = () => {
         {/* 3. Description */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Description <span className="text-gray-400 text-xs font-normal">(optional)</span>
+            {t('shopkeeper.post_job.desc')} <span className="text-gray-400 text-xs font-normal">{t('shopkeeper.post_job.optional')}</span>
           </label>
           <textarea
             name="description" value={form.description} onChange={handleChange}
             rows={4} className={`${inputCls('description')} resize-none`}
-            placeholder="Describe work responsibilities, any experience required, etc."
+            placeholder={t('shopkeeper.post_job.desc_ph')}
           />
         </div>
 
         {/* 4. Wage — stored as Number */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Wage (₹) <span className="text-red-500">*</span>
+            {t('shopkeeper.post_job.wage')} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">₹</span>
@@ -192,7 +194,7 @@ const PostHelperJob = () => {
           </div>
           {form.budget > 0 && !errors.budget && (
             <p className="text-xs text-gray-400 mt-1">
-              Preview: ₹{Number(form.budget).toLocaleString('en-IN')}
+              {t('shopkeeper.post_job.preview_wage', { amount: Number(form.budget).toLocaleString('en-IN') })}
             </p>
           )}
           <FieldError field="budget" />
@@ -201,7 +203,7 @@ const PostHelperJob = () => {
         {/* 5. Work Duration */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Work Duration <span className="text-red-500">*</span>
+            {t('shopkeeper.post_job.work_duration')} <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-3">
             {DURATION_OPTIONS.map(opt => (
@@ -214,7 +216,7 @@ const PostHelperJob = () => {
                     : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50'
                 }`}
               >
-                {opt}
+                {opt === 'Full-time' ? t('shopkeeper.post_job.opt_full_time') : t('shopkeeper.post_job.opt_part_time')}
               </button>
             ))}
           </div>
@@ -224,11 +226,11 @@ const PostHelperJob = () => {
         {/* 6. Working Hours */}
         <div>
           <label className="block text-sm font-bold text-text mb-1">
-            Working Hours <span className="text-red-500">*</span>
+            {t('shopkeeper.post_job.working_hours')} <span className="text-red-500">*</span>
           </label>
           <input
             type="text" name="workingHours" value={form.workingHours} onChange={handleChange}
-            className={inputCls('workingHours')} placeholder="e.g. 10 AM – 8 PM"
+            className={inputCls('workingHours')} placeholder={t('shopkeeper.post_job.working_hours_ph')}
           />
           <FieldError field="workingHours" />
         </div>
@@ -237,21 +239,21 @@ const PostHelperJob = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-bold text-text mb-1">
-              City <span className="text-red-500">*</span>
+              {t('shopkeeper.post_job.city')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text" name="city" value={form.city} onChange={handleChange}
-              className={inputCls('city')} placeholder="e.g. Kanpur"
+              className={inputCls('city')} placeholder={t('shopkeeper.post_job.city_ph')}
             />
             <FieldError field="city" />
           </div>
           <div>
             <label className="block text-sm font-bold text-text mb-1">
-              Contact Number <span className="text-red-500">*</span>
+              {t('shopkeeper.post_job.contact_number')} <span className="text-red-500">*</span>
             </label>
             <input
               type="tel" name="contactNumber" value={form.contactNumber} onChange={handleChange}
-              className={inputCls('contactNumber')} placeholder="+91XXXXXXXXXX"
+              className={inputCls('contactNumber')} placeholder={t('shopkeeper.post_job.contact_number_ph')}
             />
             <FieldError field="contactNumber" />
           </div>
@@ -264,7 +266,7 @@ const PostHelperJob = () => {
             loading ? 'bg-primary/60 cursor-not-allowed' : 'bg-primary hover:opacity-90'
           }`}
         >
-          {loading ? 'Posting…' : '📌 Post Helper Job'}
+          {loading ? t('shopkeeper.post_job.btn_posting') : t('shopkeeper.post_job.btn_post')}
         </button>
       </form>
     </div>

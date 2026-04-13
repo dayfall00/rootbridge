@@ -6,8 +6,10 @@ import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { toggleAvailability } from '../../../services/workerService';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, Clock, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const WorkerDashboard = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { userData, loadingUser } = useUser();
   const navigate = useNavigate();
@@ -79,7 +81,7 @@ const WorkerDashboard = () => {
   if (loadingUser || loading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="animate-pulse text-gray-400 font-medium">Loading Dashboard...</div>
+        <div className="animate-pulse text-gray-400 font-medium">{t('common.loading_dashboard')}</div>
       </div>
     );
   }
@@ -90,13 +92,13 @@ const WorkerDashboard = () => {
       <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-3xl font-extrabold text-text mb-1">
-            Welcome back, {userData?.name || 'Worker'}
+            {t('worker.dashboard.welcome', { name: userData?.name || 'Worker' })}
           </h1>
-          <p className="text-gray-500">Manage your jobs and availability directly from your dashboard.</p>
+          <p className="text-gray-500">{t('worker.dashboard.subtitle')}</p>
         </div>
         
         <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
-          <span className="text-sm font-bold text-gray-600">Available for work</span>
+          <span className="text-sm font-bold text-gray-600">{t('worker.dashboard.available_for_work')}</span>
           <button 
             type="button"
             onClick={handleToggleAvailability}
@@ -112,11 +114,10 @@ const WorkerDashboard = () => {
         </div>
       </section>
 
-      {/* Quick Stats Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Active Jobs</p>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">{t('worker.dashboard.active_jobs')}</p>
             <h2 className="text-4xl font-black text-text">{stats.active}</h2>
           </div>
           <div className="p-4 bg-primary/10 rounded-2xl text-primary">
@@ -126,7 +127,7 @@ const WorkerDashboard = () => {
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Total Completed</p>
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">{t('worker.dashboard.total_completed')}</p>
             <h2 className="text-4xl font-black text-text">{stats.completed}</h2>
           </div>
           <div className="p-4 bg-secondary/10 rounded-2xl text-secondary">
@@ -135,9 +136,8 @@ const WorkerDashboard = () => {
         </div>
       </section>
 
-      {/* Navigation Cards Section */}
       <section>
-        <h3 className="text-xl font-bold text-text mb-4">Quick Navigation</h3>
+        <h3 className="text-xl font-bold text-text mb-4">{t('worker.dashboard.quick_nav')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button 
             onClick={() => navigate('/worker/jobs')}
@@ -147,8 +147,8 @@ const WorkerDashboard = () => {
               <Briefcase size={24} />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-text mb-1 group-hover:text-primary transition-colors">Available Jobs</h4>
-              <p className="text-gray-500 text-sm leading-relaxed">Browse and accept new job requests from customers in your area.</p>
+              <h4 className="text-lg font-bold text-text mb-1 group-hover:text-primary transition-colors">{t('worker.dashboard.nav_available_jobs')}</h4>
+              <p className="text-gray-500 text-sm leading-relaxed">{t('worker.dashboard.nav_available_desc')}</p>
             </div>
           </button>
 
@@ -160,8 +160,8 @@ const WorkerDashboard = () => {
               <CheckCircle size={24} />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-text mb-1 group-hover:text-secondary transition-colors">My Jobs</h4>
-              <p className="text-gray-500 text-sm leading-relaxed">Manage your currently active assignments and view your past completed jobs.</p>
+              <h4 className="text-lg font-bold text-text mb-1 group-hover:text-secondary transition-colors">{t('worker.dashboard.nav_my_jobs')}</h4>
+              <p className="text-gray-500 text-sm leading-relaxed">{t('worker.dashboard.nav_my_jobs_desc')}</p>
             </div>
           </button>
         </div>

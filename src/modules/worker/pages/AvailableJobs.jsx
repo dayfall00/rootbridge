@@ -3,8 +3,10 @@ import { useAuth } from '../../../context/AuthContext';
 import { fetchAvailableJobs, acceptJob } from '../../../services/workerService';
 import JobCard from '../components/JobCard';
 import { Briefcase } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const AvailableJobs = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ const AvailableJobs = () => {
       await acceptJob(jobId, currentUser.uid);
     } catch (err) {
       console.error("Failed to accept job:", err);
-      setError(err.message || 'Failed to accept job. It might have been taken already.');
+      setError(err.message || t('worker.jobs.accept_err'));
     }
   };
 
@@ -42,8 +44,8 @@ const AvailableJobs = () => {
           <Briefcase size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-text">Available Jobs</h1>
-          <p className="text-gray-500">Find and accept new custom job requests.</p>
+          <h1 className="text-3xl font-extrabold text-text">{t('worker.jobs.available_title')}</h1>
+          <p className="text-gray-500">{t('worker.jobs.available_subtitle')}</p>
         </div>
       </div>
 
@@ -55,15 +57,15 @@ const AvailableJobs = () => {
 
       {loading ? (
         <div className="text-center p-12 bg-white rounded-2xl shadow-sm border border-gray-100 animate-pulse">
-          <p className="text-gray-400 font-bold">Scanning for open jobs...</p>
+          <p className="text-gray-400 font-bold">{t('worker.jobs.scanning')}</p>
         </div>
       ) : jobs.length === 0 ? (
         <div className="text-center p-12 bg-white rounded-2xl shadow-sm border border-gray-100">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
             <Briefcase size={32} />
           </div>
-          <h3 className="text-xl font-bold text-text mb-2">No Open Jobs</h3>
-          <p className="text-gray-500">There are currently no available jobs in the marketplace. Check back later!</p>
+          <h3 className="text-xl font-bold text-text mb-2">{t('worker.jobs.no_open_jobs')}</h3>
+          <p className="text-gray-500">{t('worker.jobs.no_open_desc')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

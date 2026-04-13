@@ -7,13 +7,14 @@ import {
   PlusCircle, ClipboardList, CheckCircle, Clock,
   MapPin, IndianRupee, TrendingUp,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const STATUS_STYLE = {
-  open:      { label: 'Open',                 cls: 'bg-green-100 text-green-700' },
-  assigned:  { label: 'Assigned',             cls: 'bg-blue-100  text-blue-700'  },
-  pending:   { label: 'Pending Confirmation', cls: 'bg-amber-100 text-amber-700' },
-  completed: { label: 'Completed',            cls: 'bg-gray-100  text-gray-600'  },
+  open:      { labelKey: 'status.open',                 cls: 'bg-green-100 text-green-700' },
+  assigned:  { labelKey: 'status.assigned',             cls: 'bg-blue-100  text-blue-700'  },
+  pending:   { labelKey: 'status.pending_confirmation', cls: 'bg-amber-100 text-amber-700' },
+  completed: { labelKey: 'status.completed',            cls: 'bg-gray-100  text-gray-600'  },
 };
 
 /** Resolve display status accounting for completionRequested flag. */
@@ -28,6 +29,7 @@ const fmt = (n) =>
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const ShopkeeperDashboard = () => {
+  const { t } = useTranslation();
   const { userData, loadingUser } = useUser();
   const { currentUser }           = useAuth();
   const navigate                  = useNavigate();
@@ -75,10 +77,10 @@ const ShopkeeperDashboard = () => {
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-text mb-1">
-            Welcome, {userData?.name || 'Shopkeeper'} 👋
+            {t('shopkeeper.dashboard.welcome', { name: userData?.name || 'Shopkeeper' })}
           </h1>
           <p className="text-gray-500">
-            Post helper job requirements and manage your listings.
+            {t('shopkeeper.dashboard.subtitle')}
           </p>
         </div>
 
@@ -88,7 +90,7 @@ const ShopkeeperDashboard = () => {
           className="flex items-center gap-2 px-5 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:opacity-90 transition-opacity shrink-0"
         >
           <PlusCircle size={18} />
-          Post Helper Job
+          {t('shopkeeper.dashboard.post_job_btn')}
         </button>
       </section>
 
@@ -96,21 +98,21 @@ const ShopkeeperDashboard = () => {
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {[
           {
-            label: 'Open Posts',
+            label: t('shopkeeper.dashboard.open_posts'),
             count: stats.open,
             icon:  <ClipboardList size={26} />,
             bg:    'bg-green-50',
             text:  'text-green-600',
           },
           {
-            label: 'Assigned',
+            label: t('shopkeeper.dashboard.assigned'),
             count: stats.assigned,
             icon:  <Clock size={26} />,
             bg:    'bg-blue-50',
             text:  'text-blue-600',
           },
           {
-            label: 'Completed',
+            label: t('shopkeeper.dashboard.completed'),
             count: stats.completed,
             icon:  <CheckCircle size={26} />,
             bg:    'bg-gray-100',
@@ -137,14 +139,14 @@ const ShopkeeperDashboard = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-text flex items-center gap-2">
             <TrendingUp size={20} className="text-primary" />
-            Recent Job Posts
+            {t('shopkeeper.dashboard.recent_jobs')}
           </h3>
           {allJobs.length > 3 && (
             <button
               onClick={() => navigate('/business/my-jobs')}
               className="text-sm text-primary font-semibold hover:underline"
             >
-              View all →
+              {t('shopkeeper.dashboard.view_all')}
             </button>
           )}
         </div>
@@ -152,9 +154,9 @@ const ShopkeeperDashboard = () => {
         {recentJobs.length === 0 ? (
           <div className="p-10 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
             <p className="text-3xl mb-3">📋</p>
-            <p className="text-gray-600 font-semibold">No jobs posted yet.</p>
+            <p className="text-gray-600 font-semibold">{t('shopkeeper.dashboard.no_jobs')}</p>
             <p className="text-gray-400 text-sm mt-1">
-              Click "Post Helper Job" to create your first listing.
+              {t('shopkeeper.dashboard.no_jobs_desc')}
             </p>
           </div>
         ) : (
@@ -185,7 +187,7 @@ const ShopkeeperDashboard = () => {
                   <span
                     className={`text-[11px] font-bold px-3 py-1 rounded-full capitalize shrink-0 ${s.cls}`}
                   >
-                    {s.label}
+                    {t(s.labelKey)}
                   </span>
                 </div>
               );
@@ -196,7 +198,7 @@ const ShopkeeperDashboard = () => {
 
       {/* Quick Actions */}
       <section>
-        <h3 className="text-xl font-bold text-text mb-4">Quick Actions</h3>
+        <h3 className="text-xl font-bold text-text mb-4">{t('shopkeeper.dashboard.quick_actions')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button
             onClick={() => navigate('/business/post-job')}
@@ -207,10 +209,10 @@ const ShopkeeperDashboard = () => {
             </div>
             <div>
               <h4 className="text-lg font-bold text-text mb-1 group-hover:text-primary transition-colors">
-                Post a Helper Job
+                {t('shopkeeper.dashboard.action_post')}
               </h4>
               <p className="text-gray-500 text-sm leading-relaxed">
-                Create a new requirement and reach helpers in your city.
+                {t('shopkeeper.dashboard.action_post_desc')}
               </p>
             </div>
           </button>
@@ -224,10 +226,10 @@ const ShopkeeperDashboard = () => {
             </div>
             <div>
               <h4 className="text-lg font-bold text-text mb-1 group-hover:text-green-600 transition-colors">
-                View All Job Posts
+                {t('shopkeeper.dashboard.action_view')}
               </h4>
               <p className="text-gray-500 text-sm leading-relaxed">
-                Track status, review details, and manage every listing.
+                {t('shopkeeper.dashboard.action_view_desc')}
               </p>
             </div>
           </button>

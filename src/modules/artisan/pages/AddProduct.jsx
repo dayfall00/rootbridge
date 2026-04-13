@@ -5,10 +5,12 @@ import { db } from '../../../services/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadToCloudinary } from '../../../services/uploadService';
 import { Upload, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = ['Handicraft', 'Jewelry', 'Clothing', 'Home Decor', 'Food & Spices', 'Art', 'Other'];
 
 const AddProduct = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -30,11 +32,11 @@ const AddProduct = () => {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      showToast('Please select an image file.', 'error');
+      showToast(t('shop.product.err_img_select'), 'error');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      showToast('Image must be under 5MB.', 'error');
+      showToast(t('shop.product.err_img_size'), 'error');
       return;
     }
     setImageFile(file);
@@ -46,15 +48,15 @@ const AddProduct = () => {
 
     // Validation
     if (!title.trim() || !price || !category) {
-      showToast('Please fill in all required fields.', 'error');
+      showToast(t('shop.product.err_req_fields'), 'error');
       return;
     }
     if (isNaN(Number(price)) || Number(price) <= 0) {
-      showToast('Please enter a valid price.', 'error');
+      showToast(t('shop.product.err_invalid_price'), 'error');
       return;
     }
     if (!imageFile) {
-      showToast('Please select a product image.', 'error');
+      showToast(t('shop.product.err_no_img'), 'error');
       return;
     }
 
@@ -81,12 +83,12 @@ const AddProduct = () => {
       setImageFile(null);
       setImagePreview(null);
 
-      showToast('Product listed successfully!', 'success');
+      showToast(t('shop.product.success_listed'), 'success');
       setTimeout(() => navigate('/artisan/my-products'), 1500);
 
     } catch (err) {
       console.error("Product upload error:", err);
-      showToast(err.message || 'Failed to add product. Please try again.', 'error');
+      showToast(err.message || t('shop.product.err_add_failed'), 'error');
     } finally {
       setSaving(false);
     }
@@ -95,8 +97,8 @@ const AddProduct = () => {
   return (
     <div className="max-w-[700px] mx-auto pb-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-headline font-extrabold text-text tracking-tight">Add Product</h1>
-        <p className="text-gray-500 font-body mt-2">List a new product in your artisan store.</p>
+        <h1 className="text-3xl font-headline font-extrabold text-text tracking-tight">{t('shop.product.add_product_title')}</h1>
+        <p className="text-gray-500 font-body mt-2">{t('shop.product.add_product_subtitle')}</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
@@ -105,7 +107,7 @@ const AddProduct = () => {
           {/* Image Upload */}
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-              Product Image <span className="text-red-500">*</span>
+              {t('shop.product.product_img')} <span className="text-red-500">*</span>
             </label>
             <label
               htmlFor="productImage"
@@ -116,8 +118,8 @@ const AddProduct = () => {
               ) : (
                 <div className="flex flex-col items-center gap-2 text-gray-400">
                   <Upload size={28} />
-                  <span className="text-sm font-medium">Click to upload image</span>
-                  <span className="text-xs">PNG, JPG, WEBP up to 5MB</span>
+                  <span className="text-sm font-medium">{t('shop.product.click_upload')}</span>
+                  <span className="text-xs">{t('shop.product.img_hint')}</span>
                 </div>
               )}
             </label>
@@ -134,13 +136,13 @@ const AddProduct = () => {
           {/* Title */}
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-              Product Title <span className="text-red-500">*</span>
+              {t('shop.product.product_title')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Hand-woven Bamboo Basket"
+              placeholder={t('shop.product.product_title_ph')}
               disabled={saving}
               className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium disabled:opacity-60"
               required
@@ -150,13 +152,13 @@ const AddProduct = () => {
           {/* Price */}
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-              Price (₹) <span className="text-red-500">*</span>
+              {t('shop.product.price_label')} <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="e.g. 499"
+              placeholder={t('shop.product.price_ph')}
               min="1"
               disabled={saving}
               className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium disabled:opacity-60"
@@ -167,7 +169,7 @@ const AddProduct = () => {
           {/* Category */}
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-              Category <span className="text-red-500">*</span>
+              {t('shop.product.category')} <span className="text-red-500">*</span>
             </label>
             <select
               value={category}
@@ -176,9 +178,9 @@ const AddProduct = () => {
               className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium disabled:opacity-60"
               required
             >
-              <option value="" disabled>Select a category</option>
+              <option value="" disabled>{t('shop.product.select_cat')}</option>
               {CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{t(`categories.${cat.toLowerCase()}`, { defaultValue: cat })}</option>
               ))}
             </select>
           </div>
@@ -190,14 +192,14 @@ const AddProduct = () => {
               disabled={saving}
               className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all disabled:opacity-50"
             >
-              Cancel
+              {t('shop.product.cancel')}
             </button>
             <button
               type="submit"
               disabled={saving}
               className={`px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md transition-all ${saving ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5'}`}
             >
-              {saving ? 'Uploading...' : 'List Product'}
+              {saving ? t('shop.product.uploading') : t('shop.product.list_product')}
             </button>
           </div>
         </form>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu, Home, ClipboardList, Briefcase, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const WorkerSidebar = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   const getNavClass = ({ isActive }) => {
@@ -19,7 +21,7 @@ const WorkerSidebar = () => {
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="text-2xl font-black text-primary font-headline">RootBridge</h1>
-            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Worker Dashboard</p>
+            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">{t('worker.sidebar.subtitle')}</p>
           </div>
         )}
         <button 
@@ -32,19 +34,19 @@ const WorkerSidebar = () => {
       <nav className="flex flex-col gap-y-2">
         <NavLink to="/worker" end className={getNavClass}>
           <Home size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Dashboard</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('worker.sidebar.dashboard')}</span>}
         </NavLink>
         <NavLink to="/worker/jobs" className={getNavClass}>
           <ClipboardList size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Available Jobs</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('worker.sidebar.available_jobs')}</span>}
         </NavLink>
         <NavLink to="/worker/my-jobs" className={getNavClass}>
           <Briefcase size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">My Jobs</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('worker.sidebar.my_jobs')}</span>}
         </NavLink>
         <NavLink to="/worker/profile" className={getNavClass}>
           <User size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('worker.sidebar.profile')}</span>}
         </NavLink>
       </nav>
     </aside>

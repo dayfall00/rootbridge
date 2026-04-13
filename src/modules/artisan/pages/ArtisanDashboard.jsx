@@ -5,8 +5,10 @@ import { useUser } from '../../../context/UserContext';
 import { db } from '../../../services/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { PlusCircle, Package, LayoutDashboard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ArtisanDashboard = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { userData } = useUser();
   const [productCount, setProductCount] = useState(0);
@@ -31,8 +33,8 @@ const ArtisanDashboard = () => {
   return (
     <div className="max-w-[1000px] mx-auto pb-12">
       <div className="mb-10">
-        <h1 className="text-3xl font-headline font-extrabold text-text tracking-tight">Artisan Dashboard</h1>
-        <p className="text-gray-500 font-body mt-2">Welcome back, {userData?.name || 'Artisan'}. Manage your storefront.</p>
+        <h1 className="text-3xl font-headline font-extrabold text-text tracking-tight">{t('shop.dashboard.title')}</h1>
+        <p className="text-gray-500 font-body mt-2">{t('shop.dashboard.subtitle', { name: userData?.name || 'Artisan' })}</p>
       </div>
 
       {/* Stats Row */}
@@ -42,7 +44,7 @@ const ArtisanDashboard = () => {
             <Package size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Products</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t('shop.dashboard.total_products')}</p>
             <p className="text-3xl font-black text-text font-headline">{loading ? '—' : productCount}</p>
           </div>
         </div>
@@ -58,8 +60,8 @@ const ArtisanDashboard = () => {
             <PlusCircle size={24} />
           </div>
           <div>
-            <h3 className="font-headline font-bold text-text text-lg">Add Product</h3>
-            <p className="text-sm text-gray-500 mt-1">List a new product in your store.</p>
+            <h3 className="font-headline font-bold text-text text-lg">{t('shop.dashboard.add_product')}</h3>
+            <p className="text-sm text-gray-500 mt-1">{t('shop.dashboard.add_product_desc')}</p>
           </div>
         </Link>
 
@@ -71,8 +73,8 @@ const ArtisanDashboard = () => {
             <Package size={24} />
           </div>
           <div>
-            <h3 className="font-headline font-bold text-text text-lg">My Products</h3>
-            <p className="text-sm text-gray-500 mt-1">View and manage your listed products.</p>
+            <h3 className="font-headline font-bold text-text text-lg">{t('shop.dashboard.my_products')}</h3>
+            <p className="text-sm text-gray-500 mt-1">{t('shop.dashboard.my_products_desc')}</p>
           </div>
         </Link>
       </div>

@@ -3,10 +3,12 @@ import { useAuth } from '../../../context/AuthContext';
 import { fetchMyJobs, requestJobCompletion, forceCompleteJob } from '../../../services/workerService';
 import JobCard from '../components/JobCard';
 import { CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const AUTO_COMPLETE_MS = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
 
 const MyJobs = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [activeJobs, setActiveJobs]       = useState([]);
   const [completedJobs, setCompletedJobs] = useState([]);
@@ -72,7 +74,7 @@ const MyJobs = () => {
       await requestJobCompletion(jobId, currentUser.uid);
     } catch (err) {
       console.error('Failed to request completion:', err);
-      setError(err.message || 'Failed to request job completion. Please try again.');
+      setError(err.message || t('worker.jobs.completion_err'));
     } finally {
       setCompleting(null);
     }
@@ -86,8 +88,8 @@ const MyJobs = () => {
           <CheckCircle size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-text">My Jobs</h1>
-          <p className="text-gray-500">Track and manage your active assignments and past completions.</p>
+          <h1 className="text-3xl font-extrabold text-text">{t('worker.jobs.my_title')}</h1>
+          <p className="text-gray-500">{t('worker.jobs.my_subtitle')}</p>
         </div>
       </div>
 
@@ -99,14 +101,14 @@ const MyJobs = () => {
 
       {loading ? (
         <div className="text-center p-12 bg-white rounded-2xl shadow-sm border border-gray-100 animate-pulse">
-          <p className="text-gray-400 font-bold">Loading your jobs…</p>
+          <p className="text-gray-400 font-bold">{t('worker.jobs.loading')}</p>
         </div>
       ) : (
         <>
           {/* ── Active Assignments ────────────────────────────────────────── */}
           <section>
             <h2 className="text-2xl font-bold text-text mb-6 flex items-center gap-3">
-              Active Assignments
+              {t('worker.jobs.active_section')}
               <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
                 {activeJobs.length}
               </span>
@@ -115,7 +117,7 @@ const MyJobs = () => {
             {activeJobs.length === 0 ? (
               <div className="p-8 bg-gray-50 rounded-2xl border border-gray-100 text-center">
                 <p className="text-gray-500 font-medium">
-                  No active jobs. Check the Available Jobs board to find new opportunities.
+                  {t('worker.jobs.no_active')}
                 </p>
               </div>
             ) : (
@@ -135,7 +137,7 @@ const MyJobs = () => {
           {/* ── Completed Jobs ────────────────────────────────────────────── */}
           <section>
             <h2 className="text-2xl font-bold text-text mb-6 flex items-center gap-3">
-              Completed Jobs
+              {t('worker.jobs.completed_section')}
               <span className="px-3 py-1 bg-gray-100 text-gray-500 text-sm rounded-full">
                 {completedJobs.length}
               </span>
@@ -143,7 +145,7 @@ const MyJobs = () => {
 
             {completedJobs.length === 0 ? (
               <div className="p-8 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                <p className="text-gray-500 font-medium">You haven't completed any jobs yet.</p>
+                <p className="text-gray-500 font-medium">{t('worker.jobs.no_completed')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

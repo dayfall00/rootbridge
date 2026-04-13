@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Briefcase, Star, MapPin, BadgeCheck } from 'lucide-react';
 import { db } from '../../services/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 const CustomerProfile = ({ currentUser }) => {
+  const { t } = useTranslation();
   const [jobs, setJobs] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [jobsLoaded, setJobsLoaded] = useState(false);
@@ -73,18 +75,18 @@ const CustomerProfile = ({ currentUser }) => {
       <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
         <h3 className="font-headline text-xl font-bold mb-6 text-text flex items-center gap-2">
           <Briefcase size={22} className="text-primary" />
-          Jobs Posted
+          {t('profile.customer.jobs_posted')}
         </h3>
         
         {jobs.length === 0 ? (
-          <p className="text-gray-500 italic text-sm text-center py-6">No jobs posted yet</p>
+          <p className="text-gray-500 italic text-sm text-center py-6">{t('profile.customer.no_jobs')}</p>
         ) : (
           <div className="space-y-4">
             {jobs.map(job => (
               <div key={job.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100 transition-colors hover:bg-gray-100">
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="font-bold text-sm text-text">{job.title || job.category || 'Untitled Job'}</p>
+                    <p className="font-bold text-sm text-text">{job.title || job.category || t('profile.customer.untitled_job')}</p>
                     <div className="flex flex-wrap items-center gap-3 mt-1.5">
                       {job.city && (
                         <p className="flex items-center gap-1 text-xs text-gray-500">
@@ -113,16 +115,16 @@ const CustomerProfile = ({ currentUser }) => {
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-headline text-xl font-bold text-text flex items-center gap-2">
             <BadgeCheck size={22} className="text-green-500" />
-            Ratings & Reviews
+            {t('profile.customer.ratings_reviews')}
           </h3>
           <div className="flex items-center gap-2 bg-yellow-50 text-yellow-600 px-4 py-2 rounded-xl border border-yellow-100 font-bold">
             <Star className="fill-yellow-500 text-yellow-500" size={18} />
-            <span>{avgRating ? avgRating : 'No ratings yet'}</span>
+            <span>{avgRating ? avgRating : t('profile.customer.no_ratings')}</span>
           </div>
         </div>
         
         {reviews.length === 0 ? (
-          <p className="text-gray-500 italic text-sm text-center py-6">No reviews yet</p>
+          <p className="text-gray-500 italic text-sm text-center py-6">{t('profile.customer.no_reviews')}</p>
         ) : (
           <div className="space-y-4">
             {reviews.map(review => (
@@ -146,7 +148,7 @@ const CustomerProfile = ({ currentUser }) => {
                   )}
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed font-body">
-                  {review.comment || <span className="italic text-gray-400">No comment provided</span>}
+                  {review.comment || <span className="italic text-gray-400">{t('profile.customer.no_comment')}</span>}
                 </p>
               </div>
             ))}

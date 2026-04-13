@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { createJob } from '../services/jobService';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const JobModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,7 +23,7 @@ const JobModal = ({ isOpen, onClose }) => {
 
     try {
       if (!formData.title || !formData.description || !formData.category || !formData.budget) {
-        throw new Error('All fields are required');
+        throw new Error(t('feedback.error_require_all'));
       }
 
       await createJob({
@@ -35,7 +37,7 @@ const JobModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed to create job');
+      setError(err.message || t('feedback.error_failed_job'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ const JobModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-text">Post a Custom Job</h2>
+          <h2 className="text-xl font-bold text-text">{t('booking.job_modal_title')}</h2>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100 transition-colors text-gray-500">
             <X size={20} />
           </button>
@@ -63,24 +65,24 @@ const JobModal = ({ isOpen, onClose }) => {
           )}
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Category</label>
+            <label className="block text-sm font-bold text-text mb-1">{t('common.category_label')}</label>
             <select 
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none"
             >
-              <option value="" disabled>Select category</option>
-              <option value="Plumbing">Plumbing</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Carpentry">Carpentry</option>
-              <option value="Landscaping">Landscaping</option>
-              <option value="Other">Other</option>
+              <option value="" disabled>{t('booking.select_category')}</option>
+              <option value="Plumbing">{t('categories.plumbing')}</option>
+              <option value="Electrical">{t('categories.electrical')}</option>
+              <option value="Carpentry">{t('categories.carpentry')}</option>
+              <option value="Landscaping">{t('categories.gardening')}</option>
+              <option value="Other">{t('categories.general_repair')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Job Title</label>
+            <label className="block text-sm font-bold text-text mb-1">{t('common.title_label')}</label>
             <input 
               type="text" 
               name="title"
@@ -88,28 +90,28 @@ const JobModal = ({ isOpen, onClose }) => {
               onChange={handleChange}
               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none"
               placeholder={
-                formData.category === 'Electrical' ? 'e.g. Fix wiring issue' :
-                formData.category === 'Plumbing' ? 'e.g. Fix leaking pipe' :
-                formData.category === 'Carpentry' ? 'e.g. Repair wooden door' :
-                formData.category === 'Landscaping' ? 'e.g. Garden maintenance' :
-                'e.g. Describe the job'
+                formData.category === 'Electrical' ? t('booking.placeholder_elec') :
+                formData.category === 'Plumbing' ? t('booking.placeholder_plumb') :
+                formData.category === 'Carpentry' ? t('booking.placeholder_carp') :
+                formData.category === 'Landscaping' ? t('booking.placeholder_land') :
+                t('booking.placeholder_other')
               }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Description</label>
+            <label className="block text-sm font-bold text-text mb-1">{t('common.desc_label')}</label>
             <textarea 
               name="description"
               value={formData.description}
               onChange={handleChange}
               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring-primary focus:border-primary outline-none min-h-[100px]"
-              placeholder="Describe what needs to be done..."
+              placeholder={t('booking.placeholder_desc')}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-text mb-1">Budget (₹)</label>
+            <label className="block text-sm font-bold text-text mb-1">{t('booking.budget_label')}</label>
             <input 
               type="number" 
               name="budget"
@@ -129,7 +131,7 @@ const JobModal = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="px-5 py-2 border border-gray-200 rounded-xl bg-white text-gray-600 font-bold hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button 
             type="submit" 
@@ -137,7 +139,7 @@ const JobModal = ({ isOpen, onClose }) => {
             disabled={loading}
             className={`px-5 py-2 bg-primary text-white rounded-xl font-bold transition-opacity ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
           >
-            {loading ? 'Posting...' : 'Post Job'}
+            {loading ? t('booking.posting') : t('booking.post_job')}
           </button>
         </div>
       </div>

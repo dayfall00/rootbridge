@@ -13,12 +13,13 @@ import { uploadToCloudinary } from '../../../services/uploadService';
 import { updateUserProfile } from '../../../services/userService';
 import { normalizeCity } from '../../../utils/normalize';
 import ProfileAvatar from '../../../components/ProfileAvatar';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const STATUS_STYLE = {
-  open:      { label: 'Open',      cls: 'bg-green-100 text-green-700' },
-  assigned:  { label: 'Assigned',  cls: 'bg-blue-100  text-blue-700'  },
-  completed: { label: 'Completed', cls: 'bg-gray-100  text-gray-600'  },
+  open:      { labelKey: 'shopkeeper.profile.open',      cls: 'bg-green-100 text-green-700' },
+  assigned:  { labelKey: 'shopkeeper.profile.assigned',  cls: 'bg-blue-100  text-blue-700'  },
+  completed: { labelKey: 'shopkeeper.profile.completed', cls: 'bg-gray-100  text-gray-600'  },
 };
 
 const fmt = (n) =>
@@ -31,6 +32,7 @@ const Skeleton = ({ className }) => (
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const ShopkeeperProfile = () => {
+  const { t } = useTranslation();
   const { currentUser }           = useAuth();
   const { userData, loadingUser } = useUser();   // users/{uid} — name/phone/city/profileImage
 
@@ -47,10 +49,10 @@ const ShopkeeperProfile = () => {
       const url = await uploadToCloudinary(file, 'rootbridge_profiles');
       // Persist to users/{uid} — single source of truth; UserContext auto-reloads
       await updateUserProfile(currentUser.uid, { profileImage: url });
-      showToast('Profile photo updated!', 'success');
+      showToast(t('shopkeeper.profile.photo_updated'), 'success');
     } catch (err) {
       console.error('[ShopkeeperProfile] Avatar upload failed:', err);
-      showToast('Photo upload failed. Please try again.', 'error');
+      showToast(t('shopkeeper.profile.photo_failed'), 'error');
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = '';
@@ -76,7 +78,7 @@ const ShopkeeperProfile = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      showToast('Name cannot be empty.', 'error');
+      showToast(t('shopkeeper.profile.name_empty'), 'error');
       return;
     }
 
@@ -88,10 +90,10 @@ const ShopkeeperProfile = () => {
         city:  normalizeCity(form.city),
       });
       setIsEditOpen(false);
-      showToast('Profile updated!', 'success');
+      showToast(t('shopkeeper.profile.profile_updated'), 'success');
     } catch (err) {
       console.error('[ShopkeeperProfile] Save error:', err);
-      showToast('Failed to save. Please try again.', 'error');
+      showToast(t('shopkeeper.profile.save_failed'), 'error');
     } finally {
       setSaving(false);
     }
@@ -207,20 +209,20 @@ const ShopkeeperProfile = () => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-2xl font-extrabold text-text">
-              {userData?.name || 'Shopkeeper'}
+              {userData?.name || t('shopkeeper.profile.role')}
             </h1>
             {/* Edit pencil */}
             <button
               onClick={() => setIsEditOpen(true)}
               className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors"
-              title="Edit Profile"
+              title={t('shopkeeper.profile.edit_btn')}
             >
               <Edit2 size={17} />
             </button>
           </div>
 
           <span className="inline-block text-xs font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full mb-3 capitalize">
-            Shopkeeper
+            {t('shopkeeper.profile.role')}
           </span>
 
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
@@ -245,17 +247,17 @@ const ShopkeeperProfile = () => {
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           ) : reviewsCount === 0 ? (
             <>
-              <p className="text-xs text-gray-400 font-semibold">Rating</p>
-              <p className="text-xs text-gray-400 mt-1">No ratings yet</p>
+              <p className="text-xs text-gray-400 font-semibold">{t('shopkeeper.profile.rating')}</p>
+              <p className="text-xs text-gray-400 mt-1">{t('shopkeeper.profile.no_ratings')}</p>
             </>
           ) : (
             <>
-              <p className="text-xs text-gray-400 font-semibold mb-1">Avg Rating</p>
+              <p className="text-xs text-gray-400 font-semibold mb-1">{t('shopkeeper.profile.avg_rating')}</p>
               <div className="flex items-center justify-center gap-1">
                 <Star size={16} fill="currentColor" className="text-amber-400" />
                 <span className="text-xl font-black text-text">{avgRating.toFixed(1)}</span>
               </div>
-              <p className="text-[10px] text-gray-400 mt-0.5">/ 5 · {reviewsCount} review{reviewsCount !== 1 ? 's' : ''}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">{reviewsCount === 1 ? t('shopkeeper.profile.reviews', { count: reviewsCount }) : t('shopkeeper.profile.reviews_plural', { count: reviewsCount })}</p>
             </>
           )}
         </div>
@@ -264,13 +266,13 @@ const ShopkeeperProfile = () => {
       {/* ── Stats Row ─────────────────────────────────────────────────────── */}
       <section className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Open',      count: stats.open,      bg: 'bg-green-50', text: 'text-green-700' },
-          { label: 'Assigned',  count: stats.assigned,  bg: 'bg-blue-50',  text: 'text-blue-700'  },
-          { label: 'Completed', count: stats.completed, bg: 'bg-gray-50',  text: 'text-gray-600'  },
-        ].map(({ label, count, bg, text }) => (
-          <div key={label} className={`${bg} rounded-2xl p-4 text-center`}>
+          { labelKey: 'shopkeeper.profile.open',      count: stats.open,      bg: 'bg-green-50', text: 'text-green-700' },
+          { labelKey: 'shopkeeper.profile.assigned',  count: stats.assigned,  bg: 'bg-blue-50',  text: 'text-blue-700'  },
+          { labelKey: 'shopkeeper.profile.completed', count: stats.completed, bg: 'bg-gray-50',  text: 'text-gray-600'  },
+        ].map(({ labelKey, count, bg, text }) => (
+          <div key={labelKey} className={`${bg} rounded-2xl p-4 text-center`}>
             <p className={`text-3xl font-black ${text}`}>{count}</p>
-            <p className="text-xs font-bold text-gray-500 mt-1 uppercase tracking-wide">{label}</p>
+            <p className="text-xs font-bold text-gray-500 mt-1 uppercase tracking-wide">{t(labelKey)}</p>
           </div>
         ))}
       </section>
@@ -279,13 +281,13 @@ const ShopkeeperProfile = () => {
       <section>
         <h2 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
           <Briefcase size={20} className="text-primary" />
-          Job Posts ({jobs.length})
+          {t('shopkeeper.profile.job_posts', { count: jobs.length })}
         </h2>
 
         {jobs.length === 0 ? (
           <div className="p-10 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
             <p className="text-3xl mb-2">📋</p>
-            <p className="text-gray-600 font-semibold">No jobs posted yet.</p>
+            <p className="text-gray-600 font-semibold">{t('shopkeeper.profile.no_jobs')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -299,10 +301,12 @@ const ShopkeeperProfile = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-bold text-text">{job.title}</h3>
-                      <p className="text-primary text-sm font-semibold capitalize">{job.category} Shop</p>
+                      <p className="text-primary text-sm font-semibold capitalize">
+                        {t('shopkeeper.profile.shop_suffix', { category: t(`categories.${job.category?.toLowerCase()}`, { defaultValue: job.category }) })}
+                      </p>
                     </div>
                     <span className={`text-[11px] font-bold px-3 py-1 rounded-full capitalize shrink-0 ${s.cls}`}>
-                      {s.label}
+                      {t(s.labelKey)}
                     </span>
                   </div>
 
@@ -348,7 +352,7 @@ const ShopkeeperProfile = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="font-headline text-2xl font-bold text-text">Edit Profile</h3>
+              <h3 className="font-headline text-2xl font-bold text-text">{t('shopkeeper.profile.edit_title')}</h3>
               <button
                 onClick={() => setIsEditOpen(false)}
                 className="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-all"
@@ -361,13 +365,13 @@ const ShopkeeperProfile = () => {
               {/* Name */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-                  Full Name <span className="text-red-500">*</span>
+                  {t('shopkeeper.profile.full_name')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Your name"
+                  placeholder={t('shopkeeper.profile.your_name')}
                   disabled={saving}
                   required
                   className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
@@ -377,13 +381,13 @@ const ShopkeeperProfile = () => {
               {/* Phone */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-                  Phone <span className="text-gray-400 font-normal normal-case ml-1">(optional)</span>
+                  {t('shopkeeper.profile.phone')} <span className="text-gray-400 font-normal normal-case ml-1">{t('shopkeeper.profile.optional')}</span>
                 </label>
                 <input
                   type="tel"
                   value={form.phone}
                   onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                  placeholder="+91 XXXXXXXXXX"
+                  placeholder={t('shopkeeper.profile.eg_phone')}
                   disabled={saving}
                   className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
@@ -392,13 +396,13 @@ const ShopkeeperProfile = () => {
               {/* City */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">
-                  City
+                  {t('shopkeeper.profile.city')}
                 </label>
                 <input
                   type="text"
                   value={form.city}
                   onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-                  placeholder="e.g. Mumbai"
+                  placeholder={t('shopkeeper.profile.eg_city')}
                   disabled={saving}
                   className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                 />
@@ -411,14 +415,14 @@ const ShopkeeperProfile = () => {
                   disabled={saving}
                   className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all disabled:opacity-50"
                 >
-                  Cancel
+                  {t('shopkeeper.profile.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={saving || !form.name.trim()}
                   className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50"
                 >
-                  {saving ? 'Saving…' : 'Save Changes'}
+                  {saving ? t('shopkeeper.profile.saving') : t('shopkeeper.profile.save_changes')}
                 </button>
               </div>
             </form>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu, LayoutDashboard, PlusCircle, ClipboardList, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ShopkeeperSidebar = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   const getNavClass = ({ isActive }) => {
@@ -24,7 +26,7 @@ const ShopkeeperSidebar = () => {
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="text-2xl font-black text-primary font-headline">RootBridge</h1>
-            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Shopkeeper Portal</p>
+            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">{t('shopkeeper.sidebar_subtitle')}</p>
           </div>
         )}
         <button
@@ -38,19 +40,19 @@ const ShopkeeperSidebar = () => {
       <nav className="flex flex-col gap-y-2">
         <NavLink to="/business" end className={getNavClass}>
           <LayoutDashboard size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Dashboard</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('shopkeeper.sidebar_dashboard')}</span>}
         </NavLink>
         <NavLink to="/business/post-job" className={getNavClass}>
           <PlusCircle size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Post Helper Job</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('shopkeeper.sidebar_post_job')}</span>}
         </NavLink>
         <NavLink to="/business/my-jobs" className={getNavClass}>
           <ClipboardList size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">My Job Posts</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('shopkeeper.sidebar_my_jobs')}</span>}
         </NavLink>
         <NavLink to="/business/profile" className={getNavClass}>
           <User size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('shopkeeper.sidebar_profile')}</span>}
         </NavLink>
       </nav>
     </aside>

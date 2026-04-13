@@ -8,8 +8,10 @@ import { db } from '../../services/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { uploadToCloudinary } from '../../services/uploadService';
 import ProfileAvatar from '../../components/ProfileAvatar';
+import { useTranslation } from 'react-i18next';
 
 const UserProfile = () => {
+  const { t } = useTranslation();
   const { userData, primaryRole, setPrimaryRole } = useUser();
   const { currentUser } = useAuth();
 
@@ -98,13 +100,13 @@ const UserProfile = () => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setToast({ show: true, message: 'Please select an image file', type: 'error' });
+      setToast({ show: true, message: t('profile.edit.img_req'), type: 'error' });
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setToast({ show: true, message: 'Image size must be less than 5MB', type: 'error' });
+      setToast({ show: true, message: t('profile.edit.img_size'), type: 'error' });
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
       return;
     }
@@ -113,10 +115,10 @@ const UserProfile = () => {
       setIsUploadingAvatar(true);
       const imageUrl = await uploadToCloudinary(file, 'rootbridge_profiles');
       await updateUserProfile(currentUser.uid, { avatar: imageUrl });
-      setToast({ show: true, message: 'Avatar updated successfully!', type: 'success' });
+      setToast({ show: true, message: t('profile.edit.success_avatar'), type: 'success' });
     } catch (error) {
       console.error('Upload error:', error);
-      setToast({ show: true, message: 'Failed to upload avatar', type: 'error' });
+      setToast({ show: true, message: t('profile.edit.err_avatar'), type: 'error' });
     } finally {
       setIsUploadingAvatar(false);
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
@@ -135,11 +137,11 @@ const UserProfile = () => {
         qualification: formData.qualification?.trim(),
         city:          normalizeCity(formData.city),
       });
-      setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
+      setToast({ show: true, message: t('profile.edit.success_profile'), type: 'success' });
       setIsEditModalOpen(false);
     } catch (error) {
       console.error(error);
-      setToast({ show: true, message: 'Failed to update profile.', type: 'error' });
+      setToast({ show: true, message: t('profile.edit.err_profile'), type: 'error' });
     } finally {
       setIsSaving(false);
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
@@ -173,13 +175,13 @@ const UserProfile = () => {
               <button 
                 onClick={() => setIsEditModalOpen(true)}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                title="Edit Profile"
+                title={t('profile.edit.title')}
               >
                 <Edit2 size={20} />
               </button>
             </div>
             <p className="font-body text-gray-500 flex items-center gap-2 mt-1">
-              <Phone size={14} /> {userData?.phone || 'Not Provided'}
+              <Phone size={14} /> {userData?.phone || t('profile.details.not_provided')}
             </p>
           </div>
         </div>
@@ -201,14 +203,14 @@ const UserProfile = () => {
       <div className="grid grid-cols-12 gap-8 items-start">
         <div className={`col-span-12 ${activeRole === 'customer' ? 'lg:col-span-6' : (showTrustScore ? 'lg:col-span-8' : 'lg:col-span-12')} space-y-8`}>
           <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h3 className="font-headline text-xl font-bold mb-6 text-text">User Details</h3>
+            <h3 className="font-headline text-xl font-bold mb-6 text-text">{t('profile.details.title')}</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <User size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Full Name</h4>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('profile.details.full_name')}</h4>
                   <p className="text-xs text-gray-500">{userData?.name || 'RootBridge User'}</p>
                 </div>
               </div>
@@ -218,8 +220,8 @@ const UserProfile = () => {
                   <Mail size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Email Address</h4>
-                  <p className="text-xs text-gray-500">{currentUser?.email || userData?.email || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('profile.details.email')}</h4>
+                  <p className="text-xs text-gray-500">{currentUser?.email || userData?.email || t('profile.details.not_provided')}</p>
                 </div>
               </div>
               
@@ -228,8 +230,8 @@ const UserProfile = () => {
                   <Phone size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Phone Number</h4>
-                  <p className="text-xs text-gray-500">{userData?.phone || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('profile.details.phone')}</h4>
+                  <p className="text-xs text-gray-500">{userData?.phone || t('profile.details.not_provided')}</p>
                 </div>
               </div>
 
@@ -238,8 +240,8 @@ const UserProfile = () => {
                   <GraduationCap size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Qualification</h4>
-                  <p className="text-xs text-gray-500">{userData?.qualification || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('profile.details.qualification')}</h4>
+                  <p className="text-xs text-gray-500">{userData?.qualification || t('profile.details.not_provided')}</p>
                 </div>
               </div>
 
@@ -248,8 +250,8 @@ const UserProfile = () => {
                   <MapPin size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Location</h4>
-                  <p className="text-xs text-gray-500">{userData?.city || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('profile.details.location')}</h4>
+                  <p className="text-xs text-gray-500">{userData?.city || t('profile.details.not_provided')}</p>
                 </div>
               </div>
             </div>
@@ -262,17 +264,17 @@ const UserProfile = () => {
             {activeRole === 'customer' && (
               <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-headline text-xl font-bold text-text">Your Activity</h3>
+                  <h3 className="font-headline text-xl font-bold text-text">{t('profile.activity.title')}</h3>
                   <div className="flex items-center gap-2 bg-yellow-50 text-yellow-600 px-4 py-2 rounded-xl border border-yellow-100 font-bold">
                     <Star className="fill-yellow-500 text-yellow-500" size={18} />
-                    <span>{averageRating > 0 ? averageRating.toFixed(1) : 'No ratings yet'}</span>
+                    <span>{averageRating > 0 ? averageRating.toFixed(1) : t('profile.activity.no_ratings')}</span>
                   </div>
                 </div>
                 
                 {isLoadingActivity ? (
                    <div className="flex justify-center p-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div></div>
                 ) : customerJobs.length === 0 ? (
-                   <p className="text-gray-500 italic text-sm text-center py-6">No jobs posted yet</p>
+                   <p className="text-gray-500 italic text-sm text-center py-6">{t('profile.customer.no_jobs')}</p>
                 ) : (
                    <div className="space-y-4">
                      {customerJobs.map(job => (
@@ -282,7 +284,7 @@ const UserProfile = () => {
                              <Briefcase size={20} />
                            </div>
                            <div>
-                             <p className="font-bold text-sm text-text">{job.title || job.category || 'Untitled Job'}</p>
+                             <p className="font-bold text-sm text-text">{job.title || job.category || t('profile.customer.untitled_job')}</p>
                              {job.status && <p className="text-[10px] text-blue-700 font-bold uppercase tracking-wider mt-1 px-2 py-0.5 bg-blue-100 rounded-md inline-block">{job.status}</p>}
                            </div>
                          </div>
@@ -296,31 +298,31 @@ const UserProfile = () => {
 
             {showTrustScore && (
             <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h3 className="font-headline text-lg font-bold mb-6 text-text">Trust Score</h3>
+            <h3 className="font-headline text-lg font-bold mb-6 text-text">{t('profile.trust_score.title')}</h3>
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 rounded-full border-4 border-primary/20 flex items-center justify-center">
                 <span className="font-headline font-black text-primary text-xl">98</span>
               </div>
               <div>
-                <p className="text-sm font-bold text-text">Top 2% Globally</p>
-                <p className="text-xs text-gray-500">Based on 52 verified client reviews</p>
+                <p className="text-sm font-bold text-text">{t('profile.trust_score.top_global')}</p>
+                <p className="text-xs text-gray-500">{t('profile.trust_score.based_on')}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500 w-24">Punctuality</span>
+                <span className="text-xs font-medium text-gray-500 w-24">{t('profile.trust_score.punctuality')}</span>
                 <div className="flex-1 ml-4 h-1.5 bg-gray-100 rounded-full">
                   <div className="bg-primary h-full rounded-full w-[100%]"></div>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500 w-24">Craftsmanship</span>
+                <span className="text-xs font-medium text-gray-500 w-24">{t('profile.trust_score.craftsmanship')}</span>
                 <div className="flex-1 ml-4 h-1.5 bg-gray-100 rounded-full">
                   <div className="bg-primary h-full rounded-full w-[95%]"></div>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500 w-24">Communication</span>
+                <span className="text-xs font-medium text-gray-500 w-24">{t('profile.trust_score.communication')}</span>
                 <div className="flex-1 ml-4 h-1.5 bg-gray-100 rounded-full">
                   <div className="bg-primary h-full rounded-full w-[98%]"></div>
                 </div>
@@ -339,12 +341,11 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="font-headline text-2xl font-bold text-text">Edit Profile</h3>
+              <h3 className="font-headline text-2xl font-bold text-text">{t('profile.edit.title')}</h3>
               <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-all">
                 <X size={20} />
               </button>
@@ -378,34 +379,34 @@ const UserProfile = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Full Name</label>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('profile.edit.full_name')}</label>
                 <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Email <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">(Read-only)</span></label>
-                <input type="email" value={currentUser?.email || userData?.email || 'Not Provided'} readOnly className="w-full px-5 py-3.5 rounded-xl border border-gray-100 bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none font-medium opacity-80" />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('profile.edit.email')} <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">{t('profile.edit.read_only')}</span></label>
+                <input type="email" value={currentUser?.email || userData?.email || t('profile.details.not_provided')} readOnly className="w-full px-5 py-3.5 rounded-xl border border-gray-100 bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none font-medium opacity-80" />
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Phone Number</label>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('profile.edit.phone')}</label>
                 <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Qualification <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">(Optional)</span></label>
-                <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} placeholder="e.g. Certified Arborist" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('profile.edit.qualification')} <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">{t('profile.edit.optional')}</span></label>
+                <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} placeholder={t('profile.edit.ph_qualification')} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Location (City)</label>
-                <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. New York" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('profile.edit.location')}</label>
+                <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder={t('profile.edit.ph_location')} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
               </div>
               
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 pt-6 mt-8">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">Cancel</button>
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">{t('profile.edit.cancel')}</button>
                 <button type="submit" disabled={isSaving || (formData.name === (userData?.name || '') && formData.phone === (userData?.phone || '') && formData.qualification === (userData?.qualification || '') && formData.city === (userData?.city || ''))} className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md">
-                  {isSaving ? 'Saving...' : 'Save Changes'}
+                  {isSaving ? t('profile.edit.saving') : t('profile.edit.save')}
                 </button>
               </div>
             </form>

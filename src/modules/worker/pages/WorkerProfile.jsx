@@ -8,10 +8,12 @@ import { updateUserProfile } from '../../../services/userService';
 import { uploadToCloudinary } from '../../../services/uploadService';
 import ProfileAvatar from '../../../components/ProfileAvatar';
 import { normalizeCategory, normalizeCity } from '../../../utils/normalize';
+import { useTranslation } from 'react-i18next';
 
 const ALLOWED_CATEGORIES = ['Plumber', 'Electrician', 'Carpenter', 'Painter', 'Cleaner'];
 
 const WorkerProfile = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { userData } = useUser();
 
@@ -108,7 +110,7 @@ const WorkerProfile = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!category) {
-      setToast({ show: true, message: 'Category is required.', type: 'error' });
+      setToast({ show: true, message: t('worker.profile.category_req'), type: 'error' });
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
       return;
     }
@@ -138,11 +140,11 @@ const WorkerProfile = () => {
       }
 
       await Promise.all(promises);
-      setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
+      setToast({ show: true, message: t('worker.profile.update_success'), type: 'success' });
       setIsEditModalOpen(false);
     } catch (err) {
       console.error(err);
-      setToast({ show: true, message: 'Failed to update profile.', type: 'error' });
+      setToast({ show: true, message: t('worker.profile.update_fail'), type: 'error' });
     } finally {
       setSaving(false);
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
@@ -182,13 +184,13 @@ const WorkerProfile = () => {
               <button
                 onClick={() => setIsEditModalOpen(true)}
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                title="Edit Profile"
+                title={t('worker.profile.edit_btn')}
               >
                 <Edit2 size={20} />
               </button>
             </div>
             <p className="font-body text-gray-500 flex items-center gap-2 mt-1">
-              <Phone size={14} /> {userData?.phone || 'Not Provided'}
+              <Phone size={14} /> {userData?.phone || t('worker.profile.not_provided')}
             </p>
           </div>
         </div>
@@ -198,15 +200,19 @@ const WorkerProfile = () => {
       <div className="grid grid-cols-12 gap-8 items-start">
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h3 className="font-headline text-xl font-bold mb-6 text-text">Worker Details</h3>
+            <h3 className="font-headline text-xl font-bold mb-6 text-text">{t('worker.profile.details')}</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Briefcase size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Category</h4>
-                  <p className="text-xs text-gray-500">{workerData?.category || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('worker.profile.category_label')}</h4>
+                  <p className="text-xs text-gray-500">
+                    {workerData?.category 
+                      ? t(`categories.${workerData.category.toLowerCase().replace(/ /g, '_')}`, { defaultValue: workerData.category }) 
+                      : t('worker.profile.not_provided')}
+                  </p>
                 </div>
               </div>
 
@@ -215,8 +221,8 @@ const WorkerProfile = () => {
                   <Wrench size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Skills</h4>
-                  <p className="text-xs text-gray-500">{workerData?.skills?.length > 0 ? workerData.skills.join(', ') : 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('worker.profile.skills_label')}</h4>
+                  <p className="text-xs text-gray-500">{workerData?.skills?.length > 0 ? workerData.skills.join(', ') : t('worker.profile.not_provided')}</p>
                 </div>
               </div>
 
@@ -225,8 +231,8 @@ const WorkerProfile = () => {
                   <MapPin size={24} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">City</h4>
-                  <p className="text-xs text-gray-500">{userData?.city || 'Not Provided'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('worker.profile.city_label')}</h4>
+                  <p className="text-xs text-gray-500">{userData?.city || t('worker.profile.not_provided')}</p>
                 </div>
               </div>
 
@@ -235,8 +241,8 @@ const WorkerProfile = () => {
                   <CheckCircle size={24} className={workerData?.isAvailable ? 'text-green-500' : 'text-gray-400'} />
                 </div>
                 <div>
-                  <h4 className="font-headline font-bold text-sm text-text">Availability</h4>
-                  <p className="text-xs text-gray-500">{workerData?.isAvailable ? 'Available for work' : 'Currently unavailable'}</p>
+                  <h4 className="font-headline font-bold text-sm text-text">{t('worker.profile.availability_label')}</h4>
+                  <p className="text-xs text-gray-500">{workerData?.isAvailable ? t('worker.profile.available') : t('worker.profile.unavailable')}</p>
                 </div>
               </div>
             </div>
@@ -245,25 +251,25 @@ const WorkerProfile = () => {
 
         <div className="col-span-12 lg:col-span-4 space-y-8">
           <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-            <h3 className="font-headline text-lg font-bold mb-6 text-text">Worker Stats</h3>
+            <h3 className="font-headline text-lg font-bold mb-6 text-text">{t('worker.profile.stats')}</h3>
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 rounded-full border-4 border-primary/20 flex items-center justify-center">
                 <span className="font-headline font-black text-primary text-xl">{workerData?.rating || '0.0'}</span>
               </div>
               <div>
-                <p className="text-sm font-bold text-text">Overall Rating</p>
-                <p className="text-xs text-gray-500">Based on client reviews</p>
+                <p className="text-sm font-bold text-text">{t('worker.profile.rating')}</p>
+                <p className="text-xs text-gray-500">{t('worker.profile.rating_desc')}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500 w-24">Completed Jobs</span>
+                <span className="text-xs font-medium text-gray-500 w-24">{t('worker.profile.completed_jobs')}</span>
                 <div className="flex-1 ml-4 flex justify-end">
                   <div className="font-bold text-sm bg-gray-100 px-3 py-1 rounded-full text-text">{workerData?.completedJobs || 0}</div>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500 w-24">Active Jobs</span>
+                <span className="text-xs font-medium text-gray-500 w-24">{t('worker.profile.active_jobs')}</span>
                 <div className="flex-1 ml-4 flex justify-end">
                   <div className="font-bold text-sm bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full">0</div>
                 </div>
@@ -280,12 +286,11 @@ const WorkerProfile = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="font-headline text-2xl font-bold text-text">Edit Worker Profile</h3>
+              <h3 className="font-headline text-2xl font-bold text-text">{t('worker.profile.edit_title')}</h3>
               <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-all">
                 <X size={20} />
               </button>
@@ -293,33 +298,33 @@ const WorkerProfile = () => {
 
             <form onSubmit={handleSave} className="space-y-6">
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Full Name <span className="text-red-500">*</span></label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. John Doe" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('worker.profile.full_name')} <span className="text-red-500">*</span></label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('worker.profile.eg_name')} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Category <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('worker.profile.category_label')} <span className="text-red-500">*</span></label>
                 <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" required>
-                  <option value="" disabled>Select a category</option>
-                  {ALLOWED_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  <option value="" disabled>{t('worker.profile.select_category')}</option>
+                  {ALLOWED_CATEGORIES.map(cat => <option key={cat} value={cat}>{t(`categories.${cat.toLowerCase()}`, { defaultValue: cat })}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Skills <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">(Comma-separated)</span></label>
-                <input type="text" value={skillsString} onChange={(e) => setSkillsString(e.target.value)} placeholder="e.g. wiring, circuit repair" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('worker.profile.skills_label')} <span className="text-gray-400 font-normal lowercase tracking-normal ml-1">{t('worker.profile.comma_separated')}</span></label>
+                <input type="text" value={skillsString} onChange={(e) => setSkillsString(e.target.value)} placeholder={t('worker.profile.eg_skills')} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">City</label>
-                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Mumbai" className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">{t('worker.profile.city_label')}</label>
+                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t('worker.profile.eg_city')} className="w-full px-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
               </div>
 
               <div className="pt-2">
                 <label className="flex items-center justify-between cursor-pointer group bg-gray-50 p-4 border border-gray-200 rounded-xl">
                   <div>
-                    <p className="font-bold text-text group-hover:text-primary transition-colors text-sm">Available for Work</p>
-                    <p className="text-xs text-gray-500 mt-1 font-medium">Turn this off if you are not taking new jobs.</p>
+                    <p className="font-bold text-text group-hover:text-primary transition-colors text-sm">{t('worker.profile.available')}</p>
+                    <p className="text-xs text-gray-500 mt-1 font-medium">{t('worker.profile.turn_off_jobs')}</p>
                   </div>
                   <div className="relative">
                     <input type="checkbox" className="peer sr-only" checked={isAvailable} onChange={(e) => setIsAvailable(e.target.checked)} disabled={saving} />
@@ -330,9 +335,9 @@ const WorkerProfile = () => {
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-8">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">Cancel</button>
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all">{t('common.cancel')}</button>
                 <button type="submit" disabled={saving || !category} className="px-8 py-3 rounded-xl font-bold bg-primary text-white shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md">
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? t('common.loading') : t('common.save')}
                 </button>
               </div>
             </form>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { Menu, Home, Wrench, ShoppingBag, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   const getNavClass = ({ isActive }) => {
@@ -19,7 +21,7 @@ const Sidebar = () => {
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="text-2xl font-black text-primary font-headline">RootBridge</h1>
-            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">The Architectural Greenhouse</p>
+            <p className="text-xs text-gray-500 font-medium whitespace-nowrap">{t('sidebar.subtitle')}</p>
           </div>
         )}
         <button
@@ -32,19 +34,19 @@ const Sidebar = () => {
       <nav className="flex flex-col gap-y-2">
         <NavLink to="/home" className={getNavClass}>
           <Home size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Home</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('sidebar.home')}</span>}
         </NavLink>
         <NavLink to="/services" className={getNavClass}>
           <Wrench size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Services</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('sidebar.services')}</span>}
         </NavLink>
         <NavLink to="/shop" className={getNavClass}>
           <ShoppingBag size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Shop</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('sidebar.shop')}</span>}
         </NavLink>
         <NavLink to="/profile" className={getNavClass}>
           <User size={20} className="shrink-0" />
-          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">{t('sidebar.profile')}</span>}
         </NavLink>
       </nav>
     </aside>
