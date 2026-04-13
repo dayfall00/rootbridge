@@ -1,0 +1,120 @@
+{
+  "navbar": {
+    "search_placeholder": "Search workers or products",
+    "logout": "Logout"
+  },
+  "home": {
+    "hero_title_1": "Find professional help for your",
+    "hero_title_highlight": "home projects.",
+    "hero_subtitle": "Connect with vetted local professionals and source premium architectural materials — all in one integrated ecosystem.",
+    "search_placeholder": "What service do you need?",
+    "city_placeholder": "City / Area",
+    "search_button": "Search",
+    "detect_location_error": "Please allow location access.",
+    "geolocation_unsupported": "Geolocation not supported by your browser.",
+    
+    "browse_categories": "Browse by Category",
+    "categories_subtitle": "Professional services at your fingertips",
+    "view_all": "View all",
+    
+    "nearby_workers": "Nearby Workers",
+    "top_rated_in_area": "Top-rated professionals in your area",
+    "top_rated_in_city": "Top-rated professionals in {{city}}",
+    "no_workers": "No workers available nearby",
+    "no_workers_desc": "We'll notify you when professionals become available in your area.",
+    "browse_all_workers": "Browse all workers →",
+    "try_again": "Try again",
+    
+    "featured_products": "Featured Products",
+    "quality_materials": "Quality materials for your next renovation",
+    "go_to_shop": "Go to Shop",
+    "no_products": "No products listed yet",
+    "no_products_desc": "Check back soon — artisans are adding new products regularly.",
+    "browse_shop": "Browse the shop →",
+    
+    "pro_subscription": "Pro Subscription",
+    "pro_title": "Unlimited assistance for your portfolio property.",
+    "pro_desc": "Get priority booking, dedicated support, and 15% discount on all materials — for one monthly flat fee.",
+    "get_started": "Get Started Today"
+  },
+  "worker": {
+    "available": "Available",
+    "new": "New",
+    "price_per_hour": "₹{{price}}/hr",
+    "distance_m": "{{distance}} m",
+    "distance_km": "{{distance}} km",
+    "call": "Call",
+    "hire_now": "Hire Now"
+  },
+  "categories": {
+    "electrical": "Electrical",
+    "plumbing": "Plumbing",
+    "carpentry": "Carpentry",
+    "painting": "Painting",
+    "welding": "Welding",
+    "ac_repair": "AC Repair",
+    "gardening": "Gardening",
+    "tiling": "Tiling",
+    "solar": "Solar",
+    "masonry": "Masonry",
+    "general_repair": "General Repair",
+    "interior": "Interior Work"
+  },
+  "auth": {
+    "login_title": "Welcome Back",
+    "login_subtitle": "Sign in to access your dashboard",
+    "phone_label": "Phone Number",
+    "send_otp": "Send OTP",
+    "sending": "Sending...",
+    "agree_terms": "By continuing, you agree to our",
+    "terms": "Terms of Service",
+    
+    "verify_title": "Enter OTP",
+    "verify_subtitle": "We sent a code to {{phone}}. Please enter the 6-digit verification code below.",
+    "verify_button": "Verify",
+    "verifying": "Verifying...",
+    "did_not_receive": "Didn't receive a code?",
+    "resend_otp": "Go back & Resend OTP",
+    
+    "role_title": "What do you want to do on RootBridge?",
+    "role_subtitle": "Select one to continue applied to your journey",
+    "continue": "Continue",
+    "saving": "Saving...",
+    "selected": "Selected",
+    "select": "Select",
+    
+    "roles": {
+      "customer_title": "Find Workers",
+      "customer_desc": "I want to hire help for personal tasks or home projects.",
+      "worker_title": "Work & Earn",
+      "worker_desc": "I'm looking for local gig work and opportunities to earn.",
+      "artisan_title": "Sell Products",
+      "artisan_desc": "I am an artisan or seller wanting to reach more customers.",
+      "business_title": "Hire Workers",
+      "business_desc": "I represent a business looking for professional staff.",
+      "shopkeeper_title": "Shop Helper Hire",
+      "shopkeeper_desc": "I run a shop and need helpers to manage daily operations."
+    },
+    
+    "profile_title": "Complete your profile",
+    "profile_subtitle": "Step 2 of 2 — Finalizing your presence",
+    "full_name_label": "Full Name",
+    "city_label": "City",
+    "finish_setup": "Finish Setup"
+  },
+  "marketplace": {
+    "filters": "Filters",
+    "clear_all": "Clear all",
+    "work_field": "Work Field",
+    "all_skills": "All Skills",
+    "clear": "Clear",
+    "min_rating": "Minimum Rating",
+    "and_above": "& above",
+    "available_workers": "Available Workers",
+    "workers_in_area": "professionals available in {{city}}",
+    "loading_workers": "Loading workers in your city…",
+    "no_workers_found": "No workers found in your city",
+    "try_removing_filters": "Try removing some filters to see more results.",
+    "no_workers_fallback": "We couldn't find available workers in {{city}} right now."
+  }
+}

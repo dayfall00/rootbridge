@@ -3,8 +3,10 @@ import { useUser } from '../../context/UserContext';
 import { db } from '../../services/firebase';
 import { doc, getDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { Star, Phone, Zap, SlidersHorizontal, X, MapPin } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import CustomJobCTA from '../../components/CustomJobCTA';
 import JobModal from '../../components/JobModal';
+import { useTranslation } from 'react-i18next';
 
 const SKILL_OPTIONS = [
   'wiring',
@@ -29,7 +31,9 @@ const RATING_OPTIONS = [
 const normalize = (str) => (str || '').toLowerCase().trim();
 
 const ServicesMarketplace = () => {
+  const { t } = useTranslation();
   const { userData } = useUser();
+  const [searchParams] = useSearchParams();
 
   const [workersData, setWorkersData]         = useState([]);
   const [displayedWorkers, setDisplayedWorkers] = useState([]);
@@ -37,7 +41,10 @@ const ServicesMarketplace = () => {
   const [error, setError]                     = useState('');
   const [isModalOpen, setIsModalOpen]         = useState(false);
 
-  const [selectedSkill, setSelectedSkill] = useState('');
+  // Seed from URL params (skill from CategoryGrid, q from HeroSearch)
+  const [selectedSkill, setSelectedSkill] = useState(
+    () => searchParams.get('skill') || searchParams.get('q') || ''
+  );
   const [minRating, setMinRating]         = useState(0);
 
   useEffect(() => {
@@ -178,7 +185,7 @@ const ServicesMarketplace = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SlidersHorizontal size={16} className="text-primary" />
-              <h3 className="text-lg font-bold font-headline text-text">Filters</h3>
+              <h3 className="text-lg font-bold font-headline text-text">{t('marketplace.filters')}</h3>
               {activeFilterCount > 0 && (
                 <span className="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {activeFilterCount}
@@ -190,7 +197,7 @@ const ServicesMarketplace = () => {
                 onClick={clearAllFilters}
                 className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
               >
-                <X size={12} /> Clear all
+                <X size={12} /> {t('marketplace.clear_all')}
               </button>
             )}
           </div>
@@ -199,7 +206,7 @@ const ServicesMarketplace = () => {
 
           <div className="space-y-3">
             <label className="text-xs font-bold font-label text-gray-400 uppercase tracking-wider">
-              Work Field
+              {t('marketplace.work_field')}
             </label>
             <div className="relative">
               <select
@@ -210,7 +217,7 @@ const ServicesMarketplace = () => {
                            focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary
                            hover:border-primary/50 transition-colors capitalize"
               >
-                <option value="">All Skills</option>
+                <option value="">{t('marketplace.all_skills')}</option>
                 {SKILL_OPTIONS.map(skill => (
                   <option key={skill} value={skill} className="capitalize">{skill}</option>
                 ))}
@@ -226,7 +233,7 @@ const ServicesMarketplace = () => {
                 onClick={() => setSelectedSkill('')}
                 className="flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                <X size={10} /> Clear
+                <X size={10} /> {t('marketplace.clear')}
               </button>
             )}
           </div>
@@ -235,7 +242,7 @@ const ServicesMarketplace = () => {
 
           <div className="space-y-3">
             <label className="text-xs font-bold font-label text-gray-400 uppercase tracking-wider">
-              Minimum Rating
+              {t('marketplace.min_rating')}
             </label>
             <div className="relative">
               <select
@@ -266,7 +273,7 @@ const ServicesMarketplace = () => {
                     className={i < Math.floor(minRating) ? 'text-amber-400' : 'text-gray-300'}
                   />
                 ))}
-                <span className="text-xs text-gray-400 ml-1">&amp; above</span>
+                <span className="text-xs text-gray-400 ml-1">{t('marketplace.and_above')}</span>
               </div>
             )}
           </div>
@@ -281,7 +288,7 @@ const ServicesMarketplace = () => {
 
         <div className="mb-8">
           <h2 className="text-4xl font-extrabold font-headline tracking-tight text-text mb-2">
-            Available Workers
+            {t('marketplace.available_workers')}
           </h2>
           <div className="flex items-center gap-2 text-gray-500 text-lg">
             <MapPin size={18} className="text-primary" />
@@ -325,25 +332,25 @@ const ServicesMarketplace = () => {
         {loading && (
           <div className="p-10 border border-gray-200 rounded-2xl text-center bg-white shadow-sm">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-gray-500">Loading workers in your city…</p>
+            <p className="text-gray-500">{t('marketplace.loading_workers')}</p>
           </div>
         )}
 
         {!loading && displayedWorkers.length === 0 && (
           <div className="p-12 border border-gray-200 rounded-2xl text-center bg-white shadow-sm">
             <p className="text-gray-400 text-2xl mb-2">🔍</p>
-            <p className="text-gray-600 font-semibold text-base">No workers found in your city</p>
+            <p className="text-gray-600 font-semibold text-base">{t('marketplace.no_workers_found')}</p>
             <p className="text-gray-400 text-sm mt-1">
               {activeFilterCount > 0
-                ? 'Try removing some filters to see more results.'
-                : `We couldn't find available workers in ${userData?.city || 'your area'} right now.`}
+                ? t('marketplace.try_removing_filters')
+                : t('marketplace.no_workers_fallback', { city: userData?.city || 'your area' })}
             </p>
             {activeFilterCount > 0 && (
               <button
                 onClick={clearAllFilters}
                 className="mt-4 text-sm text-primary font-semibold hover:underline"
               >
-                Clear all filters
+                {t('marketplace.clear_all')}
               </button>
             )}
           </div>
