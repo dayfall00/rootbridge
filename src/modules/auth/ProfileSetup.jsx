@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { updateUserProfile } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
+import { normalizeCity } from '../../utils/normalize';
 import { User, UserCheck, Users, IdCard, CheckCircle2, ShieldCheck, MapPin, ArrowRight, Shield, Zap } from 'lucide-react';
 
 const ProfileSetup = () => {
@@ -25,7 +26,7 @@ const ProfileSetup = () => {
     setError('');
 
     try {
-      await updateUserProfile(currentUser.uid, { name, city });
+      await updateUserProfile(currentUser.uid, { name: name.trim(), city: normalizeCity(city) });
       navigate('/');
     } catch (err) {
       console.error(err);

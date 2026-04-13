@@ -76,7 +76,7 @@ const PostHelperJob = () => {
       // ✅ PART 1 FIX: convert budget to Number before saving
       await createHelperJob({ ...form, budget: Number(form.budget) });
       setSuccess(true);
-      setTimeout(() => navigate('/shopkeeper/my-jobs'), 1800);
+      setTimeout(() => navigate('/business/my-jobs'), 1800);
     } catch (err) {
       console.error('[PostHelperJob]', err);
       setErrors({ submit: err.message || 'Failed to post job. Please try again.' });

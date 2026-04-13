@@ -1,6 +1,8 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { ROLES } from '../constants/appConstants';
+import { ROUTES } from '../constants/routes';
 
 const ShopkeeperGuard = ({ children }) => {
   const { userData, loadingUser } = useUser();
@@ -9,11 +11,14 @@ const ShopkeeperGuard = ({ children }) => {
   if (!userData)   return null;
 
   const roles = userData.roles || [];
-  const isShopkeeper =
-    userData.primaryRole === 'shopkeeper' || roles.includes('shopkeeper');
+  const role  = userData.primaryRole;
 
-  if (!isShopkeeper) {
-    return <Navigate to="/home" replace />;
+  const isAllowed =
+    role === ROLES.SHOPKEEPER || roles.includes(ROLES.SHOPKEEPER) ||
+    role === ROLES.BUSINESS   || roles.includes(ROLES.BUSINESS);
+
+  if (!isAllowed) {
+    return <Navigate to={ROUTES.HOME} replace />;
   }
 
   return children;

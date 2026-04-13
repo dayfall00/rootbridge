@@ -64,7 +64,7 @@ const ArtisanDashboard = () => {
         </Link>
 
         <Link
-          to="/artisan/my-products"
+          to="/artisan/products"
           className="group bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
         >
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">

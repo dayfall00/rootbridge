@@ -24,7 +24,7 @@ const Login = () => {
       } else if (!userDoc.name) {
         navigate('/onboarding/profile');
       } else {
-        navigate('/');
+        navigate('/redirect');
       }
     } catch (err) {
       console.error(err);

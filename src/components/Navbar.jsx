@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, UserCircle, LogOut } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
+import { ROLE_PROFILE, ROUTES } from '../constants/routes';
 
 const Navbar = () => {
   const { logout } = useAuth();
   const { userData } = useUser();
   const navigate = useNavigate();
+
+  // Role-aware profile link — uses centralized ROLE_PROFILE map from routes.js
+  const profilePath = ROLE_PROFILE[userData?.primaryRole] ?? ROUTES.PROFILE;
 
   const handleLogout = async () => {
     try {
@@ -31,12 +35,16 @@ const Navbar = () => {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Link to="/profile" className="p-1 rounded-full hover:bg-gray-100 transition-colors scale-95 duration-150 ease-in-out">
-          {userData?.avatar ? (
-            <img src={userData.avatar} alt="User Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 shadow-sm" />
+        <Link to={profilePath} className="p-1 rounded-full hover:bg-gray-100 transition-colors scale-95 duration-150 ease-in-out">
+          {userData?.profileImage || userData?.avatar ? (
+            <img
+              src={userData.profileImage || userData.avatar}
+              alt="Profile"
+              className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+            />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shadow-sm border-2 border-white">
-              {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+            <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shadow-sm border-2 border-white select-none">
+              {userData?.name ? userData.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'U'}
             </div>
           )}
         </Link>

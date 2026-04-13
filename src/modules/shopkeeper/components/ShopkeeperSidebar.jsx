@@ -36,19 +36,19 @@ const ShopkeeperSidebar = () => {
       </div>
 
       <nav className="flex flex-col gap-y-2">
-        <NavLink to="/shopkeeper" end className={getNavClass}>
+        <NavLink to="/business" end className={getNavClass}>
           <LayoutDashboard size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Dashboard</span>}
         </NavLink>
-        <NavLink to="/shopkeeper/post-job" className={getNavClass}>
+        <NavLink to="/business/post-job" className={getNavClass}>
           <PlusCircle size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Post Helper Job</span>}
         </NavLink>
-        <NavLink to="/shopkeeper/my-jobs" className={getNavClass}>
+        <NavLink to="/business/my-jobs" className={getNavClass}>
           <ClipboardList size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">My Job Posts</span>}
         </NavLink>
-        <NavLink to="/shopkeeper/profile" className={getNavClass}>
+        <NavLink to="/business/profile" className={getNavClass}>
           <User size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
         </NavLink>

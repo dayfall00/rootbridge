@@ -1,5 +1,6 @@
-import { collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebase';
+import { COLLECTIONS } from '../constants/appConstants';
 
 export const createOrUpdateWorker = async (uid, data) => {
   const workerRef = doc(db, "workers", uid);
@@ -26,7 +27,7 @@ export const updateWorkerAvailability = async (uid, isAvailable) => {
 };
 
 export const subscribeToWorkers = (category, city, callback) => {
-  const workersRef = collection(db, "workers");
+  const workersRef = collection(db, COLLECTIONS.WORKERS);
   let q = query(workersRef, where("isAvailable", "==", true));
   
   if (category) {
@@ -52,7 +53,7 @@ export const toggleAvailability = async (uid, value) => {
 };
 
 export const fetchAvailableJobs = (callback) => {
-  const jobsRef = collection(db, "jobs");
+  const jobsRef = collection(db, COLLECTIONS.JOBS);
   const q = query(jobsRef, where("status", "==", "open"));
   return onSnapshot(q, (snapshot) => {
     const jobs = [];
@@ -64,7 +65,7 @@ export const fetchAvailableJobs = (callback) => {
 };
 
 export const fetchMyJobs = (uid, callback) => {
-  const jobsRef = collection(db, "jobs");
+  const jobsRef = collection(db, COLLECTIONS.JOBS);
   const q = query(jobsRef, where("assignedTo", "==", uid));
   return onSnapshot(q, (snapshot) => {
     const jobs = [];
@@ -76,7 +77,7 @@ export const fetchMyJobs = (uid, callback) => {
 };
 
 export const acceptJob = async (jobId, uid) => {
-  const jobRef = doc(db, "jobs", jobId);
+  const jobRef = doc(db, COLLECTIONS.JOBS, jobId);
   await runTransaction(db, async (transaction) => {
     const jobDoc = await transaction.get(jobRef);
     if (!jobDoc.exists()) {
@@ -98,7 +99,7 @@ export const acceptJob = async (jobId, uid) => {
  * Shopkeeper gets 48h to confirm or reject.
  */
 export const requestJobCompletion = async (jobId, workerId) => {
-  const jobRef = doc(db, "jobs", jobId);
+  const jobRef = doc(db, COLLECTIONS.JOBS, jobId);
   await runTransaction(db, async (transaction) => {
     const jobSnap = await transaction.get(jobRef);
     if (!jobSnap.exists()) throw new Error("Job not found.");
@@ -116,6 +117,6 @@ export const requestJobCompletion = async (jobId, workerId) => {
 
 /** Internal / fallback forceComplete – used by auto-completion logic. */
 export const forceCompleteJob = async (jobId) => {
-  const jobRef = doc(db, "jobs", jobId);
+  const jobRef = doc(db, COLLECTIONS.JOBS, jobId);
   await updateDoc(jobRef, { status: "completed" });
 };

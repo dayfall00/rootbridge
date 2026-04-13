@@ -3,9 +3,11 @@ import { useUser } from '../../context/UserContext';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, BadgeCheck, Edit2, User, Mail, GraduationCap, MapPin, X, Upload, Star, Briefcase } from 'lucide-react';
 import { updateUserProfile } from '../../services/userService';
-import { storage, db } from '../../services/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { normalizeCity } from '../../utils/normalize';
+import { db } from '../../services/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { uploadToCloudinary } from '../../services/uploadService';
+import ProfileAvatar from '../../components/ProfileAvatar';
 
 const UserProfile = () => {
   const { userData, primaryRole, setPrimaryRole } = useUser();
@@ -101,24 +103,19 @@ const UserProfile = () => {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setToast({ show: true, message: 'Image size must be less than 2MB', type: 'error' });
+    if (file.size > 5 * 1024 * 1024) {
+      setToast({ show: true, message: 'Image size must be less than 5MB', type: 'error' });
       setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
       return;
     }
 
     try {
       setIsUploadingAvatar(true);
-      const storageRef = ref(storage, `avatars/${currentUser.uid}_${Date.now()}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      
-      // Save URL in Firestore instantly
-      await updateUserProfile(currentUser.uid, { avatar: downloadURL });
-      
+      const imageUrl = await uploadToCloudinary(file, 'rootbridge_profiles');
+      await updateUserProfile(currentUser.uid, { avatar: imageUrl });
       setToast({ show: true, message: 'Avatar updated successfully!', type: 'success' });
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error('Upload error:', error);
       setToast({ show: true, message: 'Failed to upload avatar', type: 'error' });
     } finally {
       setIsUploadingAvatar(false);
@@ -133,10 +130,10 @@ const UserProfile = () => {
     setIsSaving(true);
     try {
       await updateUserProfile(currentUser.uid, {
-        name: formData.name,
-        phone: formData.phone,
-        qualification: formData.qualification,
-        city: formData.city
+        name:          formData.name?.trim(),
+        phone:         formData.phone?.trim(),
+        qualification: formData.qualification?.trim(),
+        city:          normalizeCity(formData.city),
       });
       setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
       setIsEditModalOpen(false);
@@ -162,12 +159,14 @@ const UserProfile = () => {
       {/* Profile Header Block */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="flex items-center gap-6">
-          <div className="relative">
-            <img alt="User avatar" className="w-24 h-24 rounded-2xl object-cover shadow-sm bg-gray-200" src={userData?.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuAiA4cAqcaPKCQS9RnfMBUu-Q_ZUp0Snxm1HcSfHj1tmVwVpWhHAMtODoGn18CAsnLnc7PMowiLl8a4Ga_zQRi5PeCo395GKevrnb-K0pmssFpTvFGUvL8UKcbDUnwLobRhHeamC1CXbuWir0P7hklU9mwtbPeGL_ncmRntJdC9UBtUJgYzuV145qx6ZGX28qylhCHwN17hcmN6zr8usmqRuxlC8J6k9CMGcAWDerc5d5njh_OilCUh3MfWZhGZLDFj7pN96f3wPZ4"} />
-            <div className="absolute -bottom-2 -right-2 bg-secondary p-1.5 rounded-lg border-2 border-white">
-              <BadgeCheck className="text-white" size={16} />
-            </div>
-          </div>
+          <ProfileAvatar
+            src={userData?.avatar || ''}
+            name={userData?.name || ''}
+            loading={isUploadingAvatar}
+            inputRef={fileInputRef}
+            onFileChange={handleAvatarChange}
+            onClick={() => fileInputRef.current?.click()}
+          />
           <div>
             <div className="flex items-center gap-4">
               <h2 className="font-headline text-4xl font-extrabold text-text tracking-tight">{userData?.name || 'RootBridge User'}</h2>

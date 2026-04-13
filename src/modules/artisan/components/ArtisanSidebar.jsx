@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, LayoutDashboard, PlusCircle, Package } from 'lucide-react';
+import { Menu, LayoutDashboard, PlusCircle, Package, User } from 'lucide-react';
 
 const ArtisanSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -38,9 +38,13 @@ const ArtisanSidebar = () => {
           <PlusCircle size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Add Product</span>}
         </NavLink>
-        <NavLink to="/artisan/my-products" className={getNavClass}>
+        <NavLink to="/artisan/products" className={getNavClass}>
           <Package size={20} className="shrink-0" />
           {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">My Products</span>}
+        </NavLink>
+        <NavLink to="/artisan/profile" className={getNavClass}>
+          <User size={20} className="shrink-0" />
+          {!collapsed && <span className="font-headline text-sm ml-1 whitespace-nowrap">Profile</span>}
         </NavLink>
       </nav>
     </aside>

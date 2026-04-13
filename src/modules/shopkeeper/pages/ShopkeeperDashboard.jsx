@@ -84,7 +84,7 @@ const ShopkeeperDashboard = () => {
 
         {/* CTA */}
         <button
-          onClick={() => navigate('/shopkeeper/post-job')}
+          onClick={() => navigate('/business/post-job')}
           className="flex items-center gap-2 px-5 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:opacity-90 transition-opacity shrink-0"
         >
           <PlusCircle size={18} />
@@ -141,7 +141,7 @@ const ShopkeeperDashboard = () => {
           </h3>
           {allJobs.length > 3 && (
             <button
-              onClick={() => navigate('/shopkeeper/my-jobs')}
+              onClick={() => navigate('/business/my-jobs')}
               className="text-sm text-primary font-semibold hover:underline"
             >
               View all →
@@ -199,7 +199,7 @@ const ShopkeeperDashboard = () => {
         <h3 className="text-xl font-bold text-text mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button
-            onClick={() => navigate('/shopkeeper/post-job')}
+            onClick={() => navigate('/business/post-job')}
             className="flex items-start text-left gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-md transition-all group"
           >
             <div className="p-3 bg-gray-50 rounded-xl text-gray-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
@@ -216,7 +216,7 @@ const ShopkeeperDashboard = () => {
           </button>
 
           <button
-            onClick={() => navigate('/shopkeeper/my-jobs')}
+            onClick={() => navigate('/business/my-jobs')}
             className="flex items-start text-left gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-green-300 hover:shadow-md transition-all group"
           >
             <div className="p-3 bg-gray-50 rounded-xl text-gray-400 group-hover:bg-green-50 group-hover:text-green-600 transition-colors shrink-0">

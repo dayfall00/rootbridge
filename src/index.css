@@ -7,3 +7,12 @@
   --font-label: "Inter", sans-serif;
   --font-display: "Manrope", sans-serif;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Offset anchor targets to account for fixed 64px navbar */
+[id] {
+  scroll-margin-top: 80px;
+}

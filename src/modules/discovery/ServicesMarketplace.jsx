@@ -44,15 +44,14 @@ const ServicesMarketplace = () => {
     setLoading(true);
     setError('');
 
-    const userCity = userData?.city;
-    console.log('[ServicesMarketplace] user.city:', userCity);
+    const userCity = userData?.city?.trim();
+    const targetCity = normalize(userCity);
+    console.log('[ServicesMarketplace] User city:', userCity, '→ normalized:', targetCity);
 
     if (!userCity) {
-      setLoading(false);
-      return;
+      // No city set on user profile yet — show all available workers as fallback
+      console.log('[ServicesMarketplace] No user city — showing all available workers');
     }
-
-    const targetCity = normalize(userCity);
 
     const q = query(
       collection(db, 'workers'),
@@ -65,21 +64,34 @@ const ServicesMarketplace = () => {
         let raw = snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
         console.log('[ServicesMarketplace] Firestore isAvailable workers:', raw.length);
 
-        raw = raw.filter(w => {
-          const match = normalize(w.city) === targetCity;
-          console.log(`[Worker ${w.uid}] city="${w.city}" → "${normalize(w.city)}" vs "${targetCity}" → ${match}`);
-          return match;
-        });
+        // Try city filter first
+        let cityFiltered = raw;
+        if (targetCity) {
+          cityFiltered = raw.filter(w => {
+            const match = normalize(w.city) === targetCity;
+            console.log(`[Worker ${w.uid}] city="${w.city}" → "${normalize(w.city)}" vs "${targetCity}" → ${match}`);
+            return match;
+          });
+        }
+
+        // FALLBACK: if no city match, show all available workers
+        const toEnrich = cityFiltered.length > 0 ? cityFiltered : raw;
+        if (cityFiltered.length === 0 && raw.length > 0) {
+          console.log('[ServicesMarketplace] No city match → fallback: showing all', raw.length, 'workers');
+        }
 
         const enriched = await Promise.all(
-          raw.map(async (worker) => {
+          toEnrich.map(async (worker) => {
             let name  = 'RootBridge User';
-            let phone = '+91XXXXXXXXXX';
+            let phone = '+';
+            let profileImage = worker.profileImage || '';
             try {
               const userDoc = await getDoc(doc(db, 'users', worker.uid));
               if (userDoc.exists()) {
-                name  = userDoc.data().name  || name;
-                phone = userDoc.data().phone || phone;
+                const ud = userDoc.data();
+                name         = ud.name         || name;
+                phone        = ud.phone        || phone;
+                profileImage = worker.profileImage || ud.profileImage || ud.avatar || '';
               }
             } catch (err) {
               console.error('[ServicesMarketplace] Error fetching user doc:', worker.uid, err);
@@ -97,15 +109,16 @@ const ServicesMarketplace = () => {
               name,
               skills,
               rating:        typeof worker.rating === 'number' ? worker.rating : 0,
-              city:          worker.city,
+              city:          worker.city || userCity || '',
               isAvailable:   true,
               phone,
+              profileImage,
               completedJobs: worker.completedJobs || 0,
             };
           })
         );
 
-        console.log('[ServicesMarketplace] City-filtered & enriched workers:', enriched.length);
+        console.log('[ServicesMarketplace] Filtered & enriched workers:', enriched.length);
         setWorkersData(enriched);
         setLoading(false);
       },
@@ -342,12 +355,22 @@ const ServicesMarketplace = () => {
               key={worker.uid}
               className="group bg-white rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1 shadow-sm hover:shadow-xl border border-gray-100"
             >
-              <div className="relative h-64 overflow-hidden bg-gray-200">
-                <img
-                  alt={`${worker.name} – professional worker`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDkJOh5RZxhZTo1aP78WnhhU8v0LDeZXpE0MP2hdmaeMmZU2cmQjXKpDBt8okIpNezPb5aCDpyTPIFytIpmxPR41NHJvJKfFUa2dV_AmDdVT-7kQdDHoLjaYnHTAmg0W727uAEEhUVdWCq4k1CVHPQz58ZoDLdmYrzu_Yx-bsyMurUdk0YRoln7ZlIiBN4yR2bGLQZgbjslV5XgFCUsEza4zKYvIWLI3BtciI8vL1jQnSEAlSxSfXFrYe4KENeAqQ012Q5tJwf_0s"
-                />
+              <div className="relative h-64 overflow-hidden bg-gray-100">
+                {worker.profileImage ? (
+                  <img
+                    alt={`${worker.name} – professional worker`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    src={worker.profileImage}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                    <div className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center">
+                      <span className="text-4xl font-black text-primary font-headline select-none">
+                        {worker.name ? worker.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?'}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className="absolute top-4 left-4 bg-green-500/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
                   <span className="text-xs font-bold text-white uppercase tracking-wider">Available Now</span>
                 </div>
