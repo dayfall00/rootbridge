@@ -1,6 +1,11 @@
 [
   {
-    "origin": ["http://localhost:5173", "http://localhost:5174"],
+    "origin": [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://rootbridge.vercel.app",
+      "https://*.vercel.app"
+    ],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
     "maxAgeSeconds": 3600,
     "responseHeader": [
