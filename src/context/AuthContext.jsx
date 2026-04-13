@@ -26,9 +26,22 @@ export const AuthProvider = ({ children }) => {
     logout,
   };
 
+  // Show a full-screen spinner while Firebase resolves auth state.
+  // Critically, we do NOT block children from mounting — this keeps
+  // React Router's location context alive so /register and /login
+  // are never misrouted to the catch-all "/" during the init phase.
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
+

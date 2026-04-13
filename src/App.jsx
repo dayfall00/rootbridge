@@ -10,6 +10,7 @@ const LandingPage = lazy(() => import('./modules/landing/LandingPage'));
 
 // Auth & Onboarding
 import Login        from './modules/auth/Login';
+import Register     from './modules/auth/Register';
 import VerifyOTP    from './modules/auth/VerifyOTP';
 import RoleSelection from './modules/auth/RoleSelection';
 import ProfileSetup  from './modules/auth/ProfileSetup';
@@ -73,8 +74,9 @@ function App() {
                 </Suspense>
               }
             />
-            <Route path="/login"       element={<Login />}       />
-            <Route path="/verify-otp"  element={<VerifyOTP />}   />
+            <Route path="/login"       element={<Login />}      />
+            <Route path="/register"    element={<Register />}   />
+            <Route path="/verify-otp"  element={<VerifyOTP />}  />
 
             {/* Post-login smart redirect (used by Login & VerifyOTP) */}
             <Route path="/redirect" element={<RootRedirect />} />

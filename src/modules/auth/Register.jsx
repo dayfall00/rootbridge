@@ -1,55 +1,63 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
-import { signInWithEmail, signInWithGoogle } from '../../services/authService';
+import { registerWithEmail, signInWithGoogle } from '../../services/authService';
 import { createUserIfNotExists } from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
-import { Network, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { Network, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 // ── Validation helpers ──────────────────────────────────────────────────────
-const validateEmail = (email) => {
-  if (!email) return 'Email is required.';
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) return 'Invalid email format.';
+const validateEmail = (v) => {
+  if (!v) return 'Email is required.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Invalid email format.';
+  return '';
+};
+const validatePassword = (v) => {
+  if (!v) return 'Password is required.';
+  if (v.length < 6) return 'Password must be at least 6 characters.';
+  return '';
+};
+const validateConfirm = (pass, confirm) => {
+  if (!confirm) return 'Please confirm your password.';
+  if (pass !== confirm) return 'Passwords do not match.';
   return '';
 };
 
-const validatePassword = (password) => {
-  if (!password) return 'Password is required.';
-  if (password.length < 6) return 'Password must be at least 6 characters.';
-  return '';
-};
-
-// ── Map Firebase error codes to friendly messages ───────────────────────────
+// ── Firebase error → friendly message ───────────────────────────────────────
 const mapFirebaseError = (code) => {
   switch (code) {
-    case 'auth/user-not-found':
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential':
-      return 'Login failed. Please try again.';
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists.';
     case 'auth/invalid-email':
       return 'Invalid email format.';
-    case 'auth/too-many-requests':
-      return 'Too many attempts. Please try again later.';
+    case 'auth/weak-password':
+      return 'Password must be at least 6 characters.';
     default:
-      return 'Login failed. Please try again.';
+      return 'Registration failed. Please try again.';
   }
 };
 
-const Login = () => {
+const Register = () => {
   const { currentUser } = useAuth();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm]   = useState('');
+
   const [emailErr, setEmailErr]     = useState('');
   const [passwordErr, setPasswordErr] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [confirmErr, setConfirmErr] = useState('');
+  const [error, setError]           = useState('');
+
+  const [showPass, setShowPass]       = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading]         = useState(false);
+
   const navigate = useNavigate();
 
   // Already logged-in users go straight to their dashboard
   if (currentUser) return <Navigate to="/redirect" replace />;
 
-  // ── Shared post-login navigation ──────────────────────────────────────────
-  const handlePostLogin = async (user) => {
+  // ── Shared post-auth navigation ────────────────────────────────────────────
+  const handlePostAuth = async (user) => {
     const userDoc = await createUserIfNotExists(user.uid, user.email || 'Unknown');
     if (!userDoc.primaryRole) {
       navigate('/onboarding/role');
@@ -60,23 +68,24 @@ const Login = () => {
     }
   };
 
-  // ── Email + Password login ────────────────────────────────────────────────
-  const handleLogin = async (e) => {
+  // ── Email + Password registration ──────────────────────────────────────────
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    // Run validation
     const eErr = validateEmail(email);
     const pErr = validatePassword(password);
+    const cErr = validateConfirm(password, confirm);
     setEmailErr(eErr);
     setPasswordErr(pErr);
-    if (eErr || pErr) return;
+    setConfirmErr(cErr);
+    if (eErr || pErr || cErr) return;
 
     setLoading(true);
     setError('');
 
     try {
-      const user = await signInWithEmail(email, password);
-      await handlePostLogin(user);
+      const user = await registerWithEmail(email, password);
+      await handlePostAuth(user);
     } catch (err) {
       console.error(err);
       setError(mapFirebaseError(err.code));
@@ -85,29 +94,33 @@ const Login = () => {
     }
   };
 
-  // ── Google login ──────────────────────────────────────────────────────────
+  // ── Google sign-up ─────────────────────────────────────────────────────────
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
     try {
       const user = await signInWithGoogle();
-      await handlePostLogin(user);
+      await handlePostAuth(user);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed to login with Google.');
+      setError(err.message || 'Failed to sign up with Google.');
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = !validateEmail(email) && !validatePassword(password);
+  const isFormValid =
+    !validateEmail(email) &&
+    !validatePassword(password) &&
+    !validateConfirm(password, confirm);
 
   return (
     <div className="bg-background font-body text-text min-h-screen flex flex-col selection:bg-primary/20 selection:text-text">
       <main className="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
 
         <div className="w-full max-w-[480px] z-10">
-          {/* ── Logo / Brand ── */}
+
+          {/* ── Brand ── */}
           <div className="flex flex-col items-center mb-10">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
@@ -120,34 +133,33 @@ const Login = () => {
 
           {/* ── Card ── */}
           <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10 border border-gray-100">
-            <h1 className="font-headline text-3xl font-bold text-text mb-2">Welcome back</h1>
-            <p className="text-gray-500 mb-8 font-body">Sign in to access your workspace.</p>
+            <h1 className="font-headline text-3xl font-bold text-text mb-2">Create account</h1>
+            <p className="text-gray-500 mb-8 font-body">Sign up to get started with RootBridge.</p>
 
-            <form className="space-y-6" onSubmit={handleLogin} noValidate>
+            <form className="space-y-6" onSubmit={handleRegister} noValidate>
 
               {/* Email */}
               <div className="space-y-2">
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest ml-1">
                   Email
                 </label>
-                <div className="relative flex items-center group">
+                <div className="relative flex items-center">
                   <div className="absolute left-4 flex items-center pointer-events-none">
                     <Mail className="text-gray-400" size={18} />
                   </div>
                   <input
-                    id="email-input"
-                    className={`w-full pl-11 pr-4 py-4 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-text placeholder:text-gray-400 ${emailErr ? 'border-red-400' : 'border-gray-200'}`}
-                    placeholder="you@example.com"
+                    id="register-email"
                     type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
                     value={email}
+                    disabled={loading}
                     onChange={(e) => {
                       setEmail(e.target.value);
                       setEmailErr(validateEmail(e.target.value));
                       setError('');
                     }}
-                    disabled={loading}
-                    required
-                    autoComplete="email"
+                    className={`w-full pl-11 pr-4 py-4 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-text placeholder:text-gray-400 ${emailErr ? 'border-red-400' : 'border-gray-200'}`}
                   />
                 </div>
                 {emailErr && <p className="text-red-500 text-xs ml-1 mt-1 font-medium">{emailErr}</p>}
@@ -158,42 +170,85 @@ const Login = () => {
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest ml-1">
                   Password
                 </label>
-                <div className="relative flex items-center group">
+                <div className="relative flex items-center">
                   <div className="absolute left-4 flex items-center pointer-events-none">
                     <Lock className="text-gray-400" size={18} />
                   </div>
                   <input
-                    id="password-input"
-                    className={`w-full pl-11 pr-4 py-4 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-text placeholder:text-gray-400 ${passwordErr ? 'border-red-400' : 'border-gray-200'}`}
+                    id="register-password"
+                    type={showPass ? 'text' : 'password'}
+                    autoComplete="new-password"
                     placeholder="Min. 6 characters"
-                    type="password"
                     value={password}
+                    disabled={loading}
                     onChange={(e) => {
                       setPassword(e.target.value);
                       setPasswordErr(validatePassword(e.target.value));
+                      if (confirm) setConfirmErr(validateConfirm(e.target.value, confirm));
                       setError('');
                     }}
-                    disabled={loading}
-                    required
-                    autoComplete="current-password"
+                    className={`w-full pl-11 pr-12 py-4 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-text placeholder:text-gray-400 ${passwordErr ? 'border-red-400' : 'border-gray-200'}`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass((v) => !v)}
+                    className="absolute right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 {passwordErr && <p className="text-red-500 text-xs ml-1 mt-1 font-medium">{passwordErr}</p>}
               </div>
 
-              {/* Server / Firebase error */}
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest ml-1">
+                  Confirm Password
+                </label>
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 flex items-center pointer-events-none">
+                    <Lock className="text-gray-400" size={18} />
+                  </div>
+                  <input
+                    id="register-confirm"
+                    type={showConfirm ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    placeholder="Re-enter password"
+                    value={confirm}
+                    disabled={loading}
+                    onChange={(e) => {
+                      setConfirm(e.target.value);
+                      setConfirmErr(validateConfirm(password, e.target.value));
+                      setError('');
+                    }}
+                    className={`w-full pl-11 pr-12 py-4 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-text placeholder:text-gray-400 ${confirmErr ? 'border-red-400' : 'border-gray-200'}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    className="absolute right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {confirmErr && <p className="text-red-500 text-xs ml-1 mt-1 font-medium">{confirmErr}</p>}
+              </div>
+
+              {/* Server error */}
               {error && (
                 <p className="text-red-500 text-sm font-medium text-center">{error}</p>
               )}
 
               {/* Submit */}
               <button
-                id="sign-in-button"
-                className={`w-full py-4 px-6 bg-primary text-white font-headline font-bold rounded-xl transition-opacity ${loading || !isFormValid ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-90 active:scale-[0.98]'}`}
+                id="register-submit"
                 type="submit"
                 disabled={loading || !isFormValid}
+                className={`w-full py-4 px-6 bg-primary text-white font-headline font-bold rounded-xl transition-opacity ${loading || !isFormValid ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-90 active:scale-[0.98]'}`}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Creating account...' : 'Create Account'}
               </button>
 
               {/* Divider */}
@@ -206,7 +261,7 @@ const Login = () => {
               {/* Google */}
               <button
                 type="button"
-                id="google-sign-in-button"
+                id="google-register-button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
                 className={`w-full py-4 px-6 border border-gray-300 bg-white text-text font-headline font-bold rounded-xl shadow-sm flex items-center justify-center gap-3 transition-colors hover:bg-gray-50 active:scale-[0.98] ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -214,6 +269,7 @@ const Login = () => {
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
                 Continue with Google
               </button>
+
             </form>
 
             {/* Security badge */}
@@ -222,20 +278,27 @@ const Login = () => {
                 <ShieldCheck className="text-primary" size={20} />
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-text">Secure login.</p>
-                <p className="text-xs text-gray-500 leading-relaxed">Your credentials are protected with industry-standard encryption.</p>
+                <p className="text-sm font-medium text-text">Your data is safe with us.</p>
+                <p className="text-xs text-gray-500 leading-relaxed">We use industry-standard encryption to protect your account.</p>
               </div>
             </div>
           </div>
 
+          {/* Footer nav */}
           <div className="mt-8 flex justify-center gap-6">
-            <Link to="/register" className="text-xs font-semibold text-secondary hover:text-blue-600 transition-colors uppercase tracking-wider">New User? Join Us</Link>
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-secondary hover:text-blue-600 transition-colors uppercase tracking-wider"
+            >
+              Already have an account? Login
+            </Link>
             <span className="text-gray-300">•</span>
             <a className="text-xs font-semibold text-gray-500 hover:text-text transition-colors uppercase tracking-wider" href="#">Privacy Policy</a>
           </div>
         </div>
       </main>
 
+      {/* Background watermark */}
       <div className="hidden lg:block fixed right-12 bottom-12 max-w-xs text-right opacity-30">
         <h2 className="font-headline text-4xl font-black text-gray-400 uppercase leading-none mb-2">Connect.<br/>Create.<br/>Deliver.</h2>
         <p className="text-xs font-label text-gray-500">The RootBridge Professional Ecosystem © 2024</p>
@@ -244,4 +307,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

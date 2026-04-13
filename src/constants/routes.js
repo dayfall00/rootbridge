@@ -3,6 +3,7 @@ export const ROUTES = {
   // Public
   LANDING:            '/',
   LOGIN:              '/login',
+  REGISTER:           '/register',
   VERIFY_OTP:         '/verify-otp',
   REDIRECT:           '/redirect',
   ONBOARDING_ROLE:    '/onboarding/role',

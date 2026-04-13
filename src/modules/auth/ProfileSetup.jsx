@@ -27,7 +27,7 @@ const ProfileSetup = () => {
 
     try {
       await updateUserProfile(currentUser.uid, { name: name.trim(), city: normalizeCity(city) });
-      navigate('/');
+      navigate('/redirect');
     } catch (err) {
       console.error(err);
       setError('Failed to update profile. Please try again.');

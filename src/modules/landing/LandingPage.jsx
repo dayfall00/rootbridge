@@ -86,7 +86,7 @@ const LandingPage = () => {
                   Login
                 </Link>
                 <Link
-                  to="/login"
+                  to="/register"
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                   Get Started <ArrowRight size={16} />
@@ -118,7 +118,7 @@ const LandingPage = () => {
             ))}
             <div className="pt-2 border-t border-gray-100">
               <Link
-                to="/login"
+                to={currentUser && userData?.primaryRole ? dashboardDest : '/register'}
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-primary text-white font-bold text-sm"
               >
@@ -159,7 +159,7 @@ const LandingPage = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/login"
+              to="/register"
               className="flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
             >
               Get Started Free <ArrowRight size={20} />
@@ -358,7 +358,7 @@ const LandingPage = () => {
             Join thousands of workers and customers already on RootBridge.
           </p>
           <Link
-            to="/login"
+            to="/register"
             className="inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl bg-white text-primary font-black text-lg hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 relative z-10"
           >
             Join RootBridge <ArrowRight size={20} />
@@ -371,6 +371,73 @@ const LandingPage = () => {
         <p className="font-headline font-black text-xl text-primary mb-1">RootBridge</p>
         <p className="text-gray-400 text-sm">Hyperlocal service marketplace · Built for Bharat</p>
         <p className="text-gray-300 text-xs mt-4">© {new Date().getFullYear()} RootBridge. All rights reserved.</p>
+
+        {/* Contributors */}
+        <div className="mt-8 border-t border-gray-100 pt-6">
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-4">Contributors</p>
+
+          {/* GitHub */}
+          <div className="mb-3">
+            <p className="text-gray-400 text-xs font-semibold mb-1">GitHub</p>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <a
+                href="https://github.com/anubhavmaurya22"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Anubhav Maurya
+              </a>
+              <a
+                href="https://github.com/dayfall00"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Aditya Bharadwaj
+              </a>
+            </div>
+          </div>
+
+          {/* LinkedIn */}
+          <div>
+            <p className="text-gray-400 text-xs font-semibold mb-1">LinkedIn</p>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <a
+                href="https://www.linkedin.com/in/anubhav-maurya-973482379/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Anubhav Maurya
+              </a>
+              <a
+                href="https://www.linkedin.com/in/aditya-bhardwaj-87036a1a8/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Aditya Bhardwaj
+              </a>
+              <a
+                href="https://www.linkedin.com/in/utkarsh-kumar-bab18632b/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Utkarsh Kumar
+              </a>
+              <a
+                href="https://www.linkedin.com/in/yashi-srivastava-579061329/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-primary transition-colors"
+              >
+                Yashi Srivastava
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
