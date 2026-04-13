@@ -5,8 +5,10 @@ import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
 import { normalizeCity } from '../../utils/normalize';
 import { User, UserCheck, Users, IdCard, CheckCircle2, ShieldCheck, MapPin, ArrowRight, Shield, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ProfileSetup = () => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
@@ -88,13 +90,13 @@ const ProfileSetup = () => {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
                 <ShieldCheck size={32} className="text-primary" />
               </div>
-              <h1 className="text-3xl font-headline font-extrabold text-text mb-2 tracking-tight">Complete your profile</h1>
-              <p className="text-gray-500 font-medium text-sm">Step 2 of 2 — Finalizing your presence</p>
+              <h1 className="text-3xl font-headline font-extrabold text-text mb-2 tracking-tight">{t('auth.profile_title')}</h1>
+              <p className="text-gray-500 font-medium text-sm">{t('auth.profile_subtitle')}</p>
             </div>
             
             <form className="space-y-6" onSubmit={handleFinishSetup}>
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest px-1" htmlFor="full_name">Full Name</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest px-1" htmlFor="full_name">{t('auth.full_name_label')}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <User size={18} className="text-gray-400" />
@@ -113,7 +115,7 @@ const ProfileSetup = () => {
               </div>
               
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest px-1" htmlFor="city">City</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest px-1" htmlFor="city">{t('auth.city_label')}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <MapPin size={18} className="text-gray-400" />
@@ -139,7 +141,7 @@ const ProfileSetup = () => {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Finish Setup'}
+                  {loading ? t('auth.saving') : t('auth.finish_setup')}
                   {!loading && <ArrowRight size={20} />}
                 </button>
               </div>

@@ -5,12 +5,13 @@ import { createOrUpdateWorker } from '../../services/workerService';
 import { useAuth } from '../../context/AuthContext';
 import { useUser } from '../../context/UserContext';
 import { Search, Handshake, Store, Building2, CheckCircle2, PlusCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const ROLES = {
   customer: {
     id: 'customer',
-    title: 'Find Workers',
-    desc: 'I want to hire help for personal tasks or home projects.',
+    titleKey: 'auth.roles.customer_title',
+    descKey: 'auth.roles.customer_desc',
     Icon: Search,
     colorClass: 'text-primary',
     bgClass: 'bg-primary/10',
@@ -18,8 +19,8 @@ const ROLES = {
   },
   worker: {
     id: 'worker',
-    title: 'Work & Earn',
-    desc: "I'm looking for local gig work and opportunities to earn.",
+    titleKey: 'auth.roles.worker_title',
+    descKey: 'auth.roles.worker_desc',
     Icon: Handshake,
     colorClass: 'text-primary',
     bgClass: 'bg-primary/20',
@@ -27,8 +28,8 @@ const ROLES = {
   },
   artisan: {
     id: 'artisan',
-    title: 'Sell Products',
-    desc: 'I am an artisan or seller wanting to reach more customers.',
+    titleKey: 'auth.roles.artisan_title',
+    descKey: 'auth.roles.artisan_desc',
     Icon: Store,
     colorClass: 'text-tertiary',
     bgClass: 'bg-tertiary/10',
@@ -36,8 +37,8 @@ const ROLES = {
   },
   business: {
     id: 'business',
-    title: 'Hire Workers',
-    desc: 'I represent a business looking for professional staff.',
+    titleKey: 'auth.roles.business_title',
+    descKey: 'auth.roles.business_desc',
     Icon: Building2,
     colorClass: 'text-secondary',
     bgClass: 'bg-secondary/10',
@@ -45,8 +46,8 @@ const ROLES = {
   },
   shopkeeper: {
     id: 'shopkeeper',
-    title: 'Shop Helper Hire',
-    desc: 'I run a shop and need helpers to manage daily operations.',
+    titleKey: 'auth.roles.shopkeeper_title',
+    descKey: 'auth.roles.shopkeeper_desc',
     Icon: Store,
     colorClass: 'text-amber-600',
     bgClass: 'bg-amber-50',
@@ -55,6 +56,7 @@ const ROLES = {
 };
 
 const RoleSelection = () => {
+  const { t } = useTranslation();
   const [selectedRole, setSelectedRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -124,9 +126,9 @@ const RoleSelection = () => {
               <div className="mb-10 text-center">
                 <span className="inline-block px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Step 2 of 4</span>
                 <h1 className="text-3xl md:text-4xl font-extrabold text-text font-headline leading-tight">
-                  What do you want to do on RootBridge?
+                  {t('auth.role_title')}
                 </h1>
-                <p className="text-gray-500 text-sm mt-3 font-body">Select one to continue applied to your journey</p>
+                <p className="text-gray-500 text-sm mt-3 font-body">{t('auth.role_subtitle')}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -143,11 +145,11 @@ const RoleSelection = () => {
                       <div className={`w-12 h-12 rounded-lg ${role.bgClass} flex items-center justify-center mb-4 ${role.colorClass} group-hover:scale-110 transition-transform`}>
                         <Icon size={24} />
                       </div>
-                      <h3 className="font-headline font-bold text-lg text-text">{role.title}</h3>
-                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">{role.desc}</p>
+                      <h3 className="font-headline font-bold text-lg text-text">{t(role.titleKey)}</h3>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">{t(role.descKey)}</p>
                       
                       <div className={`mt-4 flex items-center text-[10px] font-bold uppercase tracking-wider ${role.colorClass} ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
-                        {isSelected ? 'Selected' : 'Select'} 
+                        {isSelected ? t('auth.selected') : t('auth.select')} 
                         <StatusIcon size={14} className="ml-1" />
                       </div>
                     </div>
@@ -163,7 +165,7 @@ const RoleSelection = () => {
                   className={`w-full py-4 bg-primary text-white font-headline font-bold rounded-xl transition-opacity ${loading || !selectedRole ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-95'}`}
                   disabled={loading || !selectedRole}
                 >
-                  {loading ? 'Saving...' : 'Continue'}
+                  {loading ? t('auth.saving') : t('auth.continue')}
                 </button>
               </div>
             </div>

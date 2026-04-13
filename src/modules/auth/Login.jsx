@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { sendOTP, initRecaptcha, signInWithGoogle } from '../../services/authService';
 import { createUserIfNotExists } from '../../services/userService';
 import { Network, Phone, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -76,12 +78,12 @@ const Login = () => {
           </div>
           
           <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10 border border-gray-100">
-            <h1 className="font-headline text-3xl font-bold text-text mb-2">Welcome back</h1>
-            <p className="text-gray-500 mb-8 font-body">Enter your phone number to access your workspace.</p>
+            <h1 className="font-headline text-3xl font-bold text-text mb-2">{t('auth.login_title')}</h1>
+            <p className="text-gray-500 mb-8 font-body">{t('auth.login_subtitle')}</p>
             
             <form className="space-y-6" onSubmit={handleLogin}>
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest ml-1">Phone Number</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest ml-1">{t('auth.phone_label')}</label>
                 <div className="relative flex items-center group">
                   <div className="absolute left-4 flex items-center gap-2 pointer-events-none">
                     <Phone className="text-gray-500" size={18} />
@@ -106,7 +108,7 @@ const Login = () => {
                 type="submit"
                 disabled={loading}
               >
-                {loading ? 'Sending...' : 'Continue'}
+                {loading ? t('auth.sending') : t('auth.send_otp')}
               </button>
               
               {/* Invisible reCAPTCHA container required by Firebase */}

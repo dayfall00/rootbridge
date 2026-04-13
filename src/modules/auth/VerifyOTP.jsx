@@ -3,8 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { verifyOTP } from '../../services/authService';
 import { createUserIfNotExists } from '../../services/userService';
 import { Unlock, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const VerifyOTP = () => {
+  const { t } = useTranslation();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -92,9 +94,9 @@ const VerifyOTP = () => {
           </div>
 
           <div className="text-center mb-10">
-            <h1 className="font-headline text-3xl font-bold text-text tracking-tight mb-2">Enter OTP</h1>
+            <h1 className="font-headline text-3xl font-bold text-text tracking-tight mb-2">{t('auth.verify_title')}</h1>
             <p className="font-body text-gray-500 text-sm leading-relaxed max-w-[280px] mx-auto">
-              We sent a code to {phoneNumber}. Please enter the 6-digit verification code below.
+              {t('auth.verify_subtitle', { phone: phoneNumber })}
             </p>
           </div>
 
@@ -123,16 +125,16 @@ const VerifyOTP = () => {
               disabled={loading}
               className={`w-full py-4 px-6 rounded-xl bg-primary text-white font-headline font-bold text-lg transition-opacity ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-[0.98]'}`}
             >
-              {loading ? 'Verifying...' : 'Verify'}
+              {loading ? t('auth.verifying') : t('auth.verify_button')}
             </button>
             <div className="flex flex-col items-center gap-3">
-              <p className="text-xs font-label text-gray-500 uppercase tracking-tighter">Didn't receive a code?</p>
+              <p className="text-xs font-label text-gray-500 uppercase tracking-tighter">{t('auth.did_not_receive')}</p>
               <button 
                 className="text-secondary font-semibold text-sm hover:underline decoration-2 underline-offset-4 transition-all active:scale-95"
                 onClick={() => navigate('/login')}
                 disabled={loading}
               >
-                Go back & Resend OTP
+                {t('auth.resend_otp')}
               </button>
             </div>
           </div>
